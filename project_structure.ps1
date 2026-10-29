@@ -1,7 +1,7 @@
 # project_structure.ps1
 $ErrorActionPreference = "Stop"
 $root = "C:\git\MetaHackaton\automated-sales-socialmedia"
-$src  = "C:\RUTA\A\TUS\ARCHIVOS"   # carpeta con CEO.md, CGMO.md, CRO.md, BID.md, OWNER.md, TI.md, BUSINESS_CONTEXT_SHEET.md, Brand_Design_Guidelines.md, LOG-SD.md
+$src  = "C:\file\A\TUS\files"   # carpeta con CEO.md, CGMO.md, CRO.md, BID.md, OWNER.md, TI.md, BUSINESS_CONTEXT_SHEET.md, Brand_Design_Guidelines.md, LOG-SD.md
 Set-Location $root
 
 # --- Git ---
@@ -75,23 +75,6 @@ $tpl = @"
 "@
 Get-ChildItem -Recurse -Filter SYSTEM_PROMPT.md agents, external | ForEach-Object {
   [IO.File]::WriteAllText($_.FullName, $tpl, $utf8)
-}
-
-# --- Copy existing source files (skips missing ones) ---
-$map = @{
-  "BUSINESS_CONTEXT_SHEET.md" = "context\BUSINESS_CONTEXT_SHEET.md"
-  "Brand_Design_Guidelines.md" = "harness\brand-guard\SYSTEM_PROMPT.md"
-  "CEO.md"   = "agents\ceo\SYSTEM_PROMPT.md"
-  "CGMO.md"  = "agents\cgmo\SYSTEM_PROMPT.md"
-  "CRO.md"   = "agents\cro\SYSTEM_PROMPT.md"
-  "LOG-SD.md" = "agents\logistics\SYSTEM_PROMPT.md"
-  "BID.md"   = "agents\brand-designer\SYSTEM_PROMPT.md"
-  "OWNER.md" = "agents\owner\SYSTEM_PROMPT.md"
-  "TI.md"    = "external\it\SYSTEM_PROMPT.md"
-}
-foreach ($k in $map.Keys) {
-  if (Test-Path "$src\$k") { Copy-Item "$src\$k" "$root\$($map[$k])" -Force }
-  else { Write-Warning "No encontrado: $src\$k" }
 }
 
 # --- Global harness (separate service) ---

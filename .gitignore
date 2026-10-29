@@ -5,3 +5,4 @@ runs/
 .next/
 __pycache__/
 *.sqlite
+supabase/functions/.env

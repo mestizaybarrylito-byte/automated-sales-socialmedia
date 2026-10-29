@@ -1,0 +1,2 @@
+[functions.agent-router]
+static_files = ["../agents/**", "../harness/**", "../external/**", "../context/**"]
