@@ -56,7 +56,7 @@ export function WatermarkDemo() {
               <img
                 src={brand.logoDataUrl}
                 alt="Logotipo de marca como watermark"
-                className="absolute top-3 right-3 z-10 h-9 w-auto max-w-[9rem] object-contain rounded-sm bg-[#f7f2ea]/95 px-1.5 py-0.5 border border-black/25"
+                className="brand-watermark absolute top-3 right-3 z-10 h-9 w-auto max-w-[9rem] object-contain rounded-sm bg-[#f7f2ea]/95 px-1.5 py-0.5 border border-black/25"
               />
             ) : (
               <span className="absolute top-3 right-3 z-10 rounded-sm bg-charcoal-950/70 px-2 py-1 font-serif text-xs tracking-tight text-cream border border-cream/25">

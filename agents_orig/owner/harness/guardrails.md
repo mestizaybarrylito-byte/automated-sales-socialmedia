@@ -59,4 +59,3 @@ dashboard vetoes and directives to the CEO.
    before each review, and MUST escalate per `escalation` in
    `harness/policy.yaml` on missing payment evidence, KPI drops without a
    pivot plan, schedule conflicts, or cold-chain/oversell risk.
-7. 

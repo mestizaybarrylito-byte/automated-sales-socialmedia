@@ -10,7 +10,7 @@
  */
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert/strict";
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
@@ -24,6 +24,7 @@ let i18nLib;
 let narrativeLib;
 let stylesLib;
 let catalogLib;
+let samplesLib;
 let videoLib;
 
 function rssItem({ title, traffic = null, news = null, cdataTitle = false }) {
@@ -85,7 +86,7 @@ before(() => {
   mkdirSync(outDir, { recursive: true });
   const webRequire = createRequire(path.join(webDir, "package.json"));
   const ts = webRequire("typescript");
-  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "photo-styles.ts", "style-catalog.ts", "campaign-video.ts"]) {
+  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "photo-styles.ts", "style-catalog.ts", "style-samples.ts", "campaign-video.ts"]) {
     const source = readFileSync(path.join(webDir, "lib", file), "utf8");
     const { outputText } = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
@@ -99,6 +100,7 @@ before(() => {
   narrativeLib = compiledRequire("./narrative.js");
   stylesLib = compiledRequire("./photo-styles.js");
   catalogLib = compiledRequire("./style-catalog.js");
+  samplesLib = compiledRequire("./style-samples.js");
   videoLib = compiledRequire("./campaign-video.js");
 });
 
@@ -502,6 +504,26 @@ describe("photoStyles", () => {
       stylesLib.getStep3Styles([{ id: "felt" }]).map((s) => s.id),
       ["felt"]
     );
+  });
+});
+
+describe("styleSamples", () => {
+  it("maps every style deterministically onto real sample photos", () => {
+    const images = samplesLib.STYLE_SAMPLE_IMAGES;
+    assert.ok(images.length >= 2);
+    assert.equal(new Set(images).size, images.length);
+    for (const src of images) {
+      assert.match(src, /^\/images\/samples\/.+\.jpg$/);
+      assert.ok(existsSync(path.join(webDir, "public", src.slice(1))), src);
+    }
+    for (const style of stylesLib.PHOTO_STYLES) {
+      const first = samplesLib.sampleImageForStyle(style.id);
+      assert.ok(images.includes(first), style.id);
+      assert.equal(samplesLib.sampleImageForStyle(style.id), first);
+    }
+    // The catalog spreads across every sample (no dead image).
+    const used = new Set(stylesLib.PHOTO_STYLES.map((s) => samplesLib.sampleImageForStyle(s.id)));
+    assert.equal(used.size, images.length);
   });
 });
 

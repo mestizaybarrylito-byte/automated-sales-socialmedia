@@ -6,20 +6,36 @@ import { Button } from "@/components/ui/button";
 import { StyleDrawer, type DrawerThumb } from "@/components/owner/style-drawer";
 import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
 import { PHOTO_STYLES } from "@/lib/photo-styles";
-import { products } from "@/lib/products";
 import { MAX_STEP3_STYLES } from "@/lib/brand";
+import { STYLE_SAMPLE_IMAGES, sampleImageForStyle } from "@/lib/style-samples";
 import { cn } from "@/lib/utils";
 
 /** Fixed sample content so the strip matches the wizard's "photo style" look. */
 const SAMPLE = {
   hashtag: "#LoteSemanal",
+  productName: "Ribeye al Carbón",
   caption: "Pedido por lote semanal · entrega jueves",
   width: 1080,
   height: 1080,
 };
 
-function cleanName(name: string): string {
-  return name.replace("[PLACEHOLDER] ", "");
+/** Preloads every sample photo; individual failures resolve to null. */
+async function loadSampleImages(): Promise<Map<string, HTMLImageElement>> {
+  const entries = await Promise.all(
+    STYLE_SAMPLE_IMAGES.map(async (src) => {
+      try {
+        const img = await loadArtImage(src);
+        return [src, img] as const;
+      } catch {
+        return null;
+      }
+    })
+  );
+  const map = new Map<string, HTMLImageElement>();
+  for (const entry of entries) {
+    if (entry) map.set(entry[0], entry[1]);
+  }
+  return map;
 }
 
 /**
@@ -54,21 +70,20 @@ export function Step3StylePicker() {
     setStripFailed(false);
     (async () => {
       try {
-        const product = products[0];
-        if (!product) throw new Error("no products");
-        const [image, logo] = await Promise.all([
-          loadArtImage(product.image),
+        const [samples, logo] = await Promise.all([
+          loadSampleImages(),
           brand.logoDataUrl
             ? loadArtImage(brand.logoDataUrl).catch(() => null)
             : Promise.resolve(null),
         ]);
         if (cancelled) return;
+        const fallback = Array.from(samples.values())[0];
+        if (!fallback) throw new Error("no samples");
         const tw = 200;
         const th = Math.max(2, Math.round((tw * SAMPLE.height) / SAMPLE.width));
         const art = {
-          image,
           hashtag: SAMPLE.hashtag,
-          productName: cleanName(product.name),
+          productName: SAMPLE.productName,
           overlayText: "",
           caption: SAMPLE.caption,
           width: tw,
@@ -83,7 +98,11 @@ export function Step3StylePicker() {
           .filter((s) => s !== undefined)
           .map((style) => ({
             id: style.id,
-            url: renderArtCanvas({ ...art, style }).toDataURL("image/png"),
+            url: renderArtCanvas({
+              ...art,
+              image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              style,
+            }).toDataURL("image/png"),
           }));
         if (!cancelled) setStrip(list);
       } catch {
@@ -106,18 +125,14 @@ export function Step3StylePicker() {
     setDrawerThumbs([]);
     setDrawerFailed(false);
     (async () => {
-      const product = products[0];
-      if (!product) {
-        if (!cancelled) setDrawerFailed(true);
-        return;
-      }
-      const [image, logo] = await Promise.all([
-        loadArtImage(product.image).catch(() => null),
+      const [samples, logo] = await Promise.all([
+        loadSampleImages(),
         brand.logoDataUrl
           ? loadArtImage(brand.logoDataUrl).catch(() => null)
           : Promise.resolve(null),
       ]);
-      if (!image) {
+      const fallback = Array.from(samples.values())[0];
+      if (!fallback) {
         if (!cancelled) setDrawerFailed(true);
         return;
       }
@@ -125,9 +140,8 @@ export function Step3StylePicker() {
       const tw = 160;
       const th = Math.max(2, Math.round((tw * SAMPLE.height) / SAMPLE.width));
       const art = {
-        image,
         hashtag: SAMPLE.hashtag,
-        productName: cleanName(product.name),
+        productName: SAMPLE.productName,
         overlayText: "",
         caption: SAMPLE.caption,
         width: tw,
@@ -140,7 +154,11 @@ export function Step3StylePicker() {
         try {
           list.push({
             id: style.id,
-            url: renderArtCanvas({ ...art, style }).toDataURL("image/jpeg", 0.82),
+            url: renderArtCanvas({
+              ...art,
+              image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              style,
+            }).toDataURL("image/jpeg", 0.82),
           });
         } catch {
           continue;
