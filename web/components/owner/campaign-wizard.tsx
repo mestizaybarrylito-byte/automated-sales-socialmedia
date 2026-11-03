@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { products, type Product } from "@/lib/products";
+import { productImage } from "@/lib/store";
+import { useStoreProducts } from "@/lib/use-store-products";
 import { buildCaption, buildNarrative } from "@/lib/narrative";
 import type { NetworkMeta, Trend } from "@/lib/trends";
 import type { Locale } from "@/lib/settings";
@@ -35,7 +36,7 @@ function formatPrice(amount: number, locale: Locale) {
   }).format(amount);
 }
 
-function cleanName(p: Product) {
+function cleanName(p: { name: string }) {
   return p.name.replace("[PLACEHOLDER] ", "");
 }
 
@@ -81,9 +82,11 @@ export function CampaignWizard({
   const pinsKey = brand.step3StyleIds.join(",");
   const lastPinsKey = useRef(pinsKey);
 
+  // Live CRM catalog: step 1 always shows the current store products.
+  const { products, loaded: productsLoaded } = useStoreProducts();
   const product = useMemo(
     () => products.find((p) => p.slug === productSlug) ?? null,
-    [productSlug]
+    [products, productSlug]
   );
   const caption = useMemo(
     () => (product ? buildCaption(trend, product, locale) : ""),
@@ -173,7 +176,7 @@ export function CampaignWizard({
     setThumbs(null);
     (async () => {
       try {
-        const image = await loadArtImage(product.image);
+        const image = await loadArtImage(productImage(product));
         if (cancelled) return;
         const { width: W, height: H } = network.canvas;
         const tw = 200;
@@ -212,7 +215,7 @@ export function CampaignWizard({
     setDrawerThumbs([]);
     setDrawerFailed(false);
     (async () => {
-      const image = await loadArtImage(product.image).catch(() => null);
+      const image = await loadArtImage(productImage(product)).catch(() => null);
       if (!image) {
         if (!cancelled) setDrawerFailed(true);
         return;
@@ -268,7 +271,7 @@ export function CampaignWizard({
     setStatus("generating");
     setPreviewUrl(null);
     try {
-      const image = await loadArtImage(product.image);
+      const image = await loadArtImage(productImage(product));
       const { width: W, height: H } = network.canvas;
       const canvas = renderArtCanvas({
         image,
@@ -309,7 +312,7 @@ export function CampaignWizard({
     setVideoStatus("recording");
     setVideoUrl(null);
     try {
-      const image = await loadArtImage(product.image);
+      const image = await loadArtImage(productImage(product));
       const { width, height } = videoDims(network.canvas.width, network.canvas.height);
       const base = renderArtCanvas({
         image,
@@ -389,6 +392,15 @@ export function CampaignWizard({
         <div className="mt-8">
           <h2 className="text-2xl">{t.s1Title}</h2>
           <p className="text-charcoal-800/70 mt-1">{applyBrandName(t.s1Desc, brand.companyName)}</p>
+          {!productsLoaded ? (
+            <p className="font-sans text-sm text-charcoal-800/60 mt-6" role="status">
+              {t.productsLoading}
+            </p>
+          ) : products.length === 0 ? (
+            <p className="text-sm text-ember mt-6" role="alert">
+              {t.productsEmpty}
+            </p>
+          ) : (
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label={t.productsLabel}>
             {products.map((p) => {
               const selected = p.slug === productSlug;
@@ -408,7 +420,7 @@ export function CampaignWizard({
                   )}
                 >
                   <span className="photo-frame block h-32">
-                    <img src={p.image} alt={cleanName(p)} loading="lazy" />
+                    <img src={productImage(p)} alt={cleanName(p)} loading="lazy" />
                   </span>
                   <span className="block p-4">
                     <span className="block font-serif text-lg leading-snug">{cleanName(p)}</span>
@@ -424,6 +436,7 @@ export function CampaignWizard({
               );
             })}
           </div>
+          )}
           <div className="mt-6 flex justify-end">
             <Button disabled={!canNextFromStep0} onClick={() => setStep(1)}>
               {t.next1}

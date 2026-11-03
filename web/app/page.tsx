@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { products } from "@/lib/products";
-import { ProductCard } from "@/components/product-card";
+import { HomeCatalog } from "@/components/home-catalog";
 import { Button } from "@/components/ui/button";
 
 export default function HomePage() {
@@ -47,11 +46,7 @@ export default function HomePage() {
             Guía de marca
           </Link>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {products.map((p) => (
-            <ProductCard key={p.slug} product={p} />
-          ))}
-        </div>
+        <HomeCatalog />
       </section>
 
       {/* Batch rules strip */}

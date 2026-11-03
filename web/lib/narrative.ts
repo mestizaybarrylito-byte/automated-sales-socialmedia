@@ -257,7 +257,7 @@ const T: Record<Locale, NarrativeStrings> = {
  */
 export function buildNarrative(
   trend: Trend,
-  product: Product,
+  product: Pick<Product, "name" | "category">,
   network: Network,
   locale: Locale = "es",
   companyName: string = DEFAULT_COMPANY_NAME
@@ -278,7 +278,7 @@ export function buildNarrative(
 /** Short caption derived from the (possibly edited) prompt for the preview footer. */
 export function buildCaption(
   trend: Trend,
-  product: Product,
+  product: Pick<Product, "name">,
   locale: Locale = "es"
 ): string {
   const cleanName = product.name.replace("[PLACEHOLDER] ", "");

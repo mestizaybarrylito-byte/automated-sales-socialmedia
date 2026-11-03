@@ -1,4 +1,6 @@
 import type { Product } from "@/lib/products";
+import type { StoreProduct } from "@/lib/store";
+import { productImage } from "@/lib/store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,11 +13,11 @@ function formatMXN(amount: number) {
   }).format(amount);
 }
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: Product | StoreProduct }) {
   return (
     <Card className="overflow-hidden flex flex-col">
       <div className="photo-frame h-44">
-        <img src={product.image} alt={`${product.name} (imagen placeholder)`} loading="lazy" />
+        <img src={productImage(product)} alt={`${product.name} (imagen placeholder)`} loading="lazy" />
       </div>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">

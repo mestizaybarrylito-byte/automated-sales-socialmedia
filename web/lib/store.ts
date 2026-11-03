@@ -73,6 +73,19 @@ export interface Store {
 
 const STORAGE_KEY = "casa-de-brasas-store-v1";
 
+/** Shown when a CRM product has no image of its own. */
+export const FALLBACK_PRODUCT_IMAGE = "/images/hero.jpg";
+
+/** Only active products reach the online catalog and the campaign wizard. */
+export function activeProducts(items: StoreProduct[]): StoreProduct[] {
+  return items.filter((p) => p.active);
+}
+
+/** Product image with hero fallback for CRM rows without one. */
+export function productImage(p: Pick<StoreProduct, "image">): string {
+  return p.image || FALLBACK_PRODUCT_IMAGE;
+}
+
 const seedCustomers: Customer[] = [
   {
     id: "cli-001",
@@ -156,6 +169,13 @@ let mem: State | null = null;
 function state(): State {
   if (!mem) mem = load();
   return mem;
+}
+
+if (typeof window !== "undefined") {
+  // Another tab edited the CRM: drop the snapshot so the next read is fresh.
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY) mem = null;
+  });
 }
 
 export function uid(prefix: string): string {
