@@ -154,6 +154,14 @@ export function applyBrandName(text: string, companyName: string): string {
 
 export const MAX_STEP3_STYLES = 5;
 
+/** Default tab icon (Next serves web/app/icon.svg at this path). */
+export const DEFAULT_FAVICON_HREF = "/icon.svg";
+
+/** Tab-icon URL for a brand: the uploaded logo, else the default badge. */
+export function brandFaviconHref(logoDataUrl: string | null): string {
+  return logoDataUrl ?? DEFAULT_FAVICON_HREF;
+}
+
 export function defaultBrandSettings(): BrandSettings {
   return {
     logoDataUrl: null,

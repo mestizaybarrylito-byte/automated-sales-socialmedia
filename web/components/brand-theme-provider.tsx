@@ -13,6 +13,7 @@ import {
 import { usePathname } from "next/navigation";
 import {
   DEFAULT_COMPANY_NAME,
+  brandFaviconHref,
   cssVarsForBrand,
   defaultBrandSettings,
   type BrandSettings,
@@ -86,6 +87,18 @@ export function BrandThemeProvider({ children }: { children: ReactNode }) {
     }
     prevName.current = brand.companyName;
   }, [brand.companyName, pathname]);
+
+  // Browser tab icon follows the uploaded logo (default badge when none).
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.head
+      .querySelectorAll('link[rel="icon"]')
+      .forEach((el) => el.remove());
+    const link = document.createElement("link");
+    link.rel = "icon";
+    link.href = brandFaviconHref(brand.logoDataUrl);
+    document.head.appendChild(link);
+  }, [brand.logoDataUrl]);
 
   useEffect(() => {
     // Instant first paint from cache, then the database truth.

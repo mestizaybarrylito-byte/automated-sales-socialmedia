@@ -308,6 +308,14 @@ describe("fonts", () => {
   });
 });
 
+describe("brandFaviconHref", () => {
+  it("prefers the uploaded logo, else the default badge", () => {
+    assert.equal(brand.brandFaviconHref("data:image/png;base64,AAA"), "data:image/png;base64,AAA");
+    assert.equal(brand.brandFaviconHref(null), "/icon.svg");
+    assert.equal(brand.DEFAULT_FAVICON_HREF, "/icon.svg");
+  });
+});
+
 describe("applyBrandName", () => {
   it("swaps the default name and leaves the default untouched", () => {
     assert.equal(
