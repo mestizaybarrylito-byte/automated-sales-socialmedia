@@ -1,0 +1,62 @@
+# CGMO harness policy — agents_orig/cgmo/harness/policy.yaml
+# Specializes agents_orig/_template/harness/policy.yaml for growth and marketing.
+# Values MUST reference [BUSINESS_CONTEXT_SHEET] fields by name; never hardcode thresholds or schedules here.
+agent: "CGMO"
+version: "1.0"
+data_refs:
+  - "[BUSINESS_CONTEXT_SHEET]"
+  - "Company_Type"
+  - "Products"
+  - "Business_Model"
+  - "Payment_Provider"
+  - "Logistics_and_Delivery"
+  - "Brand_Design_Guidelines"
+  - "Batch_Rules_and_Triggers"
+  - "Logistics_Pickup_Schedule"
+  - "Time_Cutoff_Rule"
+  - "Trend_Adaptation_Rule"
+  - "seasonal calendar"
+allowed_actions:
+  - "read:[BUSINESS_CONTEXT_SHEET]"
+  - "draft:omnichannel-content"
+  - "propose:campaign-calendar"
+  - "propose:publication-schedule"
+  - "manage:paid-media-in-verified-zones"
+  - "build:lead-nurture-sequence"
+  - "run:ab-test"
+  - "report:acquisition-summary"
+prohibited_actions:
+  - "run paid media outside the zones and modalities in Logistics_and_Delivery and Logistics_Pickup_Schedule"
+  - "publish or schedule content without AI Leader authorization"
+  - "forward content to the AI Leader without brand_harness PASSED token"
+  - "perform cart recovery or closing (belongs to the CRO)"
+  - "run a cutoff campaign not tied to Time_Cutoff_Rule"
+  - "keep ads running against a LOG-SD supply alert or overstock notice"
+  - "promise delivery time or point outside Logistics_Pickup_Schedule"
+  - "track warehouse inventory (Zero-stock model; manage Pending Batch Items only)"
+authorization_gates:
+  - action: "campaign"
+    approver: "AI Leader (CEO/COO)"
+  - action: "discount"
+    approver: "AI Leader (CEO/COO)"
+  - action: "publication"
+    approver: "AI Leader (CEO/COO)"
+  - action: "scheduling"
+    approver: "AI Leader (CEO/COO)"
+escalation:
+  to: "CEO/COO then Human Supervisor"
+  conditions:
+    - "Logistics_Pickup_Schedule conflict"
+    - "paid-media zone ambiguity in Logistics_and_Delivery"
+    - "Time_Cutoff_Rule ambiguity"
+    - "LOG-SD supply alert or overstock notice"
+    - "brand_harness FAILED interception"
+brand_harness:
+  required_for: ["CGMO", "CRO", "BID"]
+  pass_token: "[BRAND_HARNESS: PASSED]"
+  fail_token: "[BRAND_HARNESS: FAILED]"
+  criteria:
+    - "Premium Perception per Company_Type"
+    - "Visual Consistency per Visual_Identity and Logo_Placement"
+    - "Tone Consistency per Typography and brand voice"
+    - "Trend Integrity per Trend_Adaptation_Rule"

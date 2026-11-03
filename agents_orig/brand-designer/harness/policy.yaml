@@ -1,0 +1,57 @@
+# BID harness policy — agents_orig/brand-designer/harness/policy.yaml
+# Specializes agents_orig/_template/harness/policy.yaml for brand identity design.
+# Values MUST reference [BUSINESS_CONTEXT_SHEET] fields by name; never hardcode thresholds or schedules here.
+agent: "BID"
+version: "1.0"
+data_refs:
+  - "[BUSINESS_CONTEXT_SHEET]"
+  - "Company_Type"
+  - "Products"
+  - "Business_Model"
+  - "Payment_Provider"
+  - "Logistics_and_Delivery"
+  - "Brand_Design_Guidelines"
+  - "Visual_Identity"
+  - "Logo_Placement"
+  - "Typography"
+  - "Trend_Adaptation_Rule"
+allowed_actions:
+  - "read:[BUSINESS_CONTEXT_SHEET]"
+  - "design:identity-system"
+  - "design:campaign-assets"
+  - "design:whatsapp-kit"
+  - "design:packaging-and-receipts"
+  - "preview:dashboard-payload"
+  - "report:brand-compliance"
+prohibited_actions:
+  - "change the core corporate identity without Business Owner authorization"
+  - "exceed the trend share of the 80/20 core-image-to-trends rule"
+  - "deliver an asset to the AI Leader without brand_harness PASSED token"
+  - "own the editorial line or tone of voice (belongs to the CGMO)"
+  - "use colors, fonts, or logo placement outside Brand_Design_Guidelines"
+  - "feed thumbnails to the Weekly Campaign Approval Hub without review-ready previews"
+  - "publish or execute a campaign, discount, or asset without authorization_gates clearance"
+authorization_gates:
+  - action: "campaign"
+    approver: "Business Owner via Weekly Campaign Approval Hub"
+  - action: "publication"
+    approver: "AI Leader / Business Owner"
+  - action: "core-identity-change"
+    approver: "Business Owner"
+escalation:
+  to: "CGMO then AI Leader / Business Owner"
+  conditions:
+    - "Brand_Design_Guidelines ambiguity"
+    - "Trend_Adaptation_Rule conflict with core identity"
+    - "creative brief missing product or platform targets"
+    - "asset delivery spec mismatch with TI"
+    - "brand_harness FAILED interception"
+brand_harness:
+  required_for: ["CGMO", "CRO", "BID"]
+  pass_token: "[BRAND_HARNESS: PASSED]"
+  fail_token: "[BRAND_HARNESS: FAILED]"
+  criteria:
+    - "Premium Perception per Company_Type"
+    - "Visual Consistency per Visual_Identity and Logo_Placement"
+    - "Tone Consistency per Typography and brand voice"
+    - "Trend Integrity per Trend_Adaptation_Rule"

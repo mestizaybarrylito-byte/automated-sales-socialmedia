@@ -1,0 +1,53 @@
+# Canonical harness policy schema — agents_orig/_template/harness/policy.yaml
+# Every agent copies this file and specializes `agent` + `allowed_actions`.
+# Values MUST reference [BUSINESS_CONTEXT_SHEET] fields by name; never hardcode thresholds or schedules here.
+agent: "[POSITION_AI]"
+version: "1.0"
+data_refs:
+  - "[BUSINESS_CONTEXT_SHEET]"
+  - "Company_Type"
+  - "Products"
+  - "Business_Model"
+  - "Payment_Provider"
+  - "Logistics_and_Delivery"
+  - "Brand_Design_Guidelines"
+  - "Batch_Rules_and_Triggers"
+  - "Logistics_Pickup_Schedule"
+allowed_actions:
+  - "read:[BUSINESS_CONTEXT_SHEET]"
+  - "propose:strategy-draft"
+  - "report:status-summary"
+prohibited_actions:
+  - "release supplier order before Payment_Provider payment clearance (Business_Model)"
+  - "promise delivery time or point outside Logistics_Pickup_Schedule"
+  - "track warehouse inventory (Zero-stock model; manage Pending Batch Items only)"
+  - "publish or execute campaign, discount, or asset without authorization_gates clearance"
+  - "publish CGMO/CRO/BID output without brand_harness PASSED token"
+  - "compromise cold chain or delivery timing where Products require it"
+authorization_gates:
+  - action: "campaign"
+    approver: "Human Supervisor via CEO/COO"
+  - action: "discount"
+    approver: "Human Supervisor via CEO/COO"
+  - action: "publication"
+    approver: "Human Supervisor via CEO/COO"
+  - action: "supplier-purchase-order"
+    approver: "Human Supervisor via CEO/COO"
+    precondition: "Batch_Rules_and_Triggers trigger met and Payment_Provider revenue covers wholesale cost with required net margin"
+escalation:
+  to: "CEO/COO then Human Supervisor"
+  conditions:
+    - "Batch_Rules_and_Triggers trigger ambiguity"
+    - "Payment_Provider clearance mismatch"
+    - "Logistics_Pickup_Schedule conflict"
+    - "cold-chain or oversell risk"
+    - "brand_harness FAILED interception"
+brand_harness:
+  required_for: ["CGMO", "CRO", "BID"]
+  pass_token: "[BRAND_HARNESS: PASSED]"
+  fail_token: "[BRAND_HARNESS: FAILED]"
+  criteria:
+    - "Premium Perception per Company_Type"
+    - "Visual Consistency per Visual_Identity and Logo_Placement"
+    - "Tone Consistency per Typography and brand voice"
+    - "Trend Integrity per Trend_Adaptation_Rule"

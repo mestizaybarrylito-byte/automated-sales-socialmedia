@@ -1,0 +1,55 @@
+# Logistics harness policy — agents_orig/logistics/harness/policy.yaml
+# Specializes agents_orig/_template/harness/policy.yaml for LOG-SD (Logistics, Supply & Delivery).
+# Values MUST reference [BUSINESS_CONTEXT_SHEET] fields by name; never hardcode thresholds or schedules here.
+agent: "LOG-SD"
+version: "1.0"
+data_refs:
+  - "[BUSINESS_CONTEXT_SHEET]"
+  - "Company_Type"
+  - "Products"
+  - "Business_Model"
+  - "Payment_Provider"
+  - "Logistics_and_Delivery"
+  - "Brand_Design_Guidelines"
+  - "Batch_Rules_and_Triggers"
+  - "Logistics_Pickup_Schedule"
+allowed_actions:
+  - "read:[BUSINESS_CONTEXT_SHEET]"
+  - "report:fulfillment-status-and-availability"
+  - "propose:supplier-purchase-batch"
+  - "propose:delivery-preroute"
+  - "alert:availability-overstock-coldchain"
+prohibited_actions:
+  - "enter order into batch or release supplier order before Payment_Provider (Clip) clearance and CEO authorization (Business_Model)"
+  - "promise or accept delivery time or point outside Logistics_Pickup_Schedule and Batch_Rules_and_Triggers"
+  - "track warehouse inventory (Zero-stock model; manage Pending Batch Items only)"
+  - "release product or schedule delivery route without Payment_Provider (Clip) clearance and authorization_gates clearance"
+  - "publish customer-facing output without brand_harness PASSED token"
+  - "compromise cold chain or delivery timing where Products require it"
+authorization_gates:
+  - action: "batch-entry"
+    approver: "Human Supervisor via CEO/COO"
+    precondition: "Payment_Provider (Clip) payment cleared"
+  - action: "supplier-purchase-order"
+    approver: "Human Supervisor via CEO/COO"
+    precondition: "Batch_Rules_and_Triggers trigger met and Payment_Provider (Clip) revenue covers wholesale cost with required net margin"
+  - action: "delivery-release"
+    approver: "Human Supervisor via CEO/COO"
+    precondition: "Payment_Provider (Clip) payment cleared and Logistics_Pickup_Schedule verified"
+escalation:
+  to: "CEO/COO then Human Supervisor"
+  conditions:
+    - "Batch_Rules_and_Triggers trigger ambiguity"
+    - "Payment_Provider (Clip) clearance mismatch"
+    - "Logistics_Pickup_Schedule conflict"
+    - "cold-chain or oversell risk"
+    - "brand_harness FAILED interception"
+brand_harness:
+  required_for: ["CGMO", "CRO", "BID"]
+  pass_token: "[BRAND_HARNESS: PASSED]"
+  fail_token: "[BRAND_HARNESS: FAILED]"
+  criteria:
+    - "Premium Perception per Company_Type"
+    - "Visual Consistency per Visual_Identity and Logo_Placement"
+    - "Tone Consistency per Typography and brand voice"
+    - "Trend Integrity per Trend_Adaptation_Rule"

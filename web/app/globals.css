@@ -1,0 +1,107 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default brand variables: rust/charcoal identity. BrandThemeProvider
+   overwrites them at runtime from the active theme (database or local). */
+:root {
+  --rust: #9a5f3b;
+  --rust-deep: #563526;
+  --charcoal: #1a1c1e;
+  --cream: #f7f2ea;
+
+  --brand-primary: #9a5f3b;
+  --brand-primary-deep: #563526;
+  --brand-dark: #1a1c1e;
+  --brand-surface: #232527;
+  --brand-bg: #f7f2ea;
+  --brand-accent: #c2410c;
+  --brand-on-primary: #ffffff;
+  --brand-on-dark: #ffffff;
+  --brand-on-surface: #ffffff;
+  --brand-soft-bg: #eaddd2;
+  --brand-soft-text: #e1cfc4;
+  --brand-primary-hover: #885434;
+
+  --brand-primary-rgb: 154 95 59;
+  --brand-primary-deep-rgb: 86 53 38;
+  --brand-dark-rgb: 26 28 30;
+  --brand-surface-rgb: 35 37 39;
+  --brand-bg-rgb: 247 242 234;
+  --brand-accent-rgb: 194 65 12;
+  --brand-on-primary-rgb: 255 255 255;
+  --brand-on-dark-rgb: 255 255 255;
+  --brand-on-surface-rgb: 255 255 255;
+  --brand-soft-bg-rgb: 234 221 210;
+  --brand-soft-text-rgb: 225 207 196;
+  --brand-primary-hover-rgb: 136 84 52;
+
+  --brand-font-heading: Georgia, 'Times New Roman', serif;
+  --brand-font-body: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', Helvetica, Arial, sans-serif;
+  --brand-font-accent: -apple-system, 'BlinkMacSystemFont', 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* Best-contrast text for each brand surface (computed per theme). */
+.text-on-primary {
+  color: var(--brand-on-primary);
+}
+
+.text-on-dark {
+  color: var(--brand-on-dark);
+}
+
+.text-on-surface {
+  color: var(--brand-on-surface);
+}
+
+/* Primary buttons track the theme with a visible hover shift. */
+.btn-brand-primary {
+  background-color: var(--brand-primary);
+  color: var(--brand-on-primary);
+}
+
+.btn-brand-primary:hover {
+  background-color: var(--brand-primary-hover);
+}
+
+.btn-brand-secondary:hover {
+  filter: brightness(1.18);
+}
+
+body {
+  @apply bg-cream text-charcoal-900 font-sans antialiased;
+}
+
+h1, h2, h3, .font-display {
+  @apply font-serif;
+}
+
+/* High-contrast food-photography treatment: dark readable overlay, no neon. */
+.photo-frame {
+  position: relative;
+  background-color: var(--brand-surface);
+  overflow: hidden;
+}
+
+.photo-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: contrast(1.08) saturate(1.05);
+}
+
+.photo-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(18, 19, 20, 0.72), rgba(18, 19, 20, 0.08) 55%, rgba(18, 19, 20, 0.18));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

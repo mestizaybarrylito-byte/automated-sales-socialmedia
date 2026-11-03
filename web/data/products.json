@@ -1,0 +1,56 @@
+[
+  {
+    "slug": "ribeye-al-carbon",
+    "name": "[PLACEHOLDER] Ribeye al Carbón",
+    "priceMXN": 499,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Corte premium con marmoleo generoso, ideal para sellar al carbón. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/ribeye-al-carbon.jpg",
+    "category": "corte"
+  },
+  {
+    "slug": "arrachera-marinada",
+    "name": "[PLACEHOLDER] Arrachera Marinada",
+    "priceMXN": 389,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Arrachera marinada en casa, suave y jugosa para tacos y parrilla familiar. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/arrachera-marinada.jpg",
+    "category": "corte"
+  },
+  {
+    "slug": "chorizo-artesanal",
+    "name": "[PLACEHOLDER] Chorizo Artesanal",
+    "priceMXN": 189,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Chorizo hecho en casa con especias tostadas, ahumado ligero. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/chorizo-artesanal.jpg",
+    "category": "corte"
+  },
+  {
+    "slug": "salsa-tatemada",
+    "name": "[PLACEHOLDER] Salsa Tatemada",
+    "priceMXN": 99,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Salsa casera de chiles tatemados al carbón, el compañero del asado. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/salsa-tatemada.jpg",
+    "category": "salsa"
+  },
+  {
+    "slug": "salsa-macha-premium",
+    "name": "[PLACEHOLDER] Salsa Macha Premium",
+    "priceMXN": 129,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Macha crujiente con aceite de oliva y chiles seleccionados. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/salsa-macha-premium.jpg",
+    "category": "salsa"
+  },
+  {
+    "slug": "paquete-asado-familiar",
+    "name": "[PLACEHOLDER] Paquete Asado Familiar",
+    "priceMXN": 999,
+    "pricePlaceholder": true,
+    "description": "[PLACEHOLDER] Selección de cortes + 2 salsas para 4–6 personas. Precio MXN de ejemplo; se confirma por lote semanal.",
+    "image": "/images/products/paquete-asado-familiar.jpg",
+    "category": "paquete"
+  }
+]
