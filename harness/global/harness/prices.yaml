@@ -1,0 +1,22 @@
+# USD per 1M tokens, stored by the date each price starts.
+# Reasoning tokens bill at the output rate.
+#
+# These are made-up example prices so the code runs out of the box. Replace them with your provider's
+# real prices and set verified: true once you've checked them against its pricing page.
+
+example:
+  source: replace with your provider's pricing page
+  models:
+    example-model:
+      - {effective_from: 2026-01-01, input: 1.00, cached_input: 0.10, output: 4.00, verified: false}
+    example-model-large:
+      - {effective_from: 2026-01-01, input: 4.00, cached_input: 0.20, output: 20.00, verified: false}
+
+# Meta Model API (Muse). From Meta's published pricing, Oct 2026. Not yet checked against a real bill.
+meta:
+  source: https://dev.meta.ai/docs/
+  models:
+    muse-spark-1.3:
+      - {effective_from: 2026-07-09, input: 1.25, cached_input: 0.15, output: 4.25, verified: false}
+    muse-wonder-1.0:
+      - {effective_from: 2026-10-12, input: 4.00, cached_input: 0.20, output: 20.00, verified: false}

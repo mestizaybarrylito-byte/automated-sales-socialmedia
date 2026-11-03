@@ -1,0 +1,8 @@
+.env
+node_modules/
+.venv/
+runs/
+.next/
+__pycache__/
+*.sqlite
+supabase/functions/.env

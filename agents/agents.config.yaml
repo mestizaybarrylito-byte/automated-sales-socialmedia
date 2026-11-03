@@ -1,0 +1,20 @@
+version: 1
+context:
+  sheet: ${CONTEXT_FILE_PATH}
+  brand_section: Brand_Design_Guidelines
+shared_harness:
+  - harness/brand-guard/rules.yaml
+  - harness/authorization-gates/gates.yaml
+  - harness/authorization-gates/human-decision-required.yaml
+  - harness/shared-rules/output-formats.md
+  - harness/shared-rules/jit-payment-rule.md
+  - harness/shared-rules/context-sync.md
+agents:
+  ceo:            { prompt: agents/ceo/SYSTEM_PROMPT.md,            harness: agents/ceo/harness/policy.yaml,            skills: agents/ceo/skills/,            inject: [context] }
+  cgmo:           { prompt: agents/cgmo/SYSTEM_PROMPT.md,           harness: agents/cgmo/harness/policy.yaml,           skills: agents/cgmo/skills/,           inject: [context], output_gate: brand-guard }
+  cro:            { prompt: agents/cro/SYSTEM_PROMPT.md,            harness: agents/cro/harness/policy.yaml,            skills: agents/cro/skills/,            inject: [context], output_gate: brand-guard }
+  logistics:      { prompt: agents/logistics/SYSTEM_PROMPT.md,      harness: agents/logistics/harness/policy.yaml,      skills: agents/logistics/skills/,      inject: [context] }
+  brand-designer: { prompt: agents/brand-designer/SYSTEM_PROMPT.md, harness: agents/brand-designer/harness/policy.yaml, skills: agents/brand-designer/skills/, inject: [context] }
+  owner:          { prompt: agents/owner/SYSTEM_PROMPT.md,          harness: agents/owner/harness/policy.yaml,          skills: agents/owner/skills/,          inject: [context] }
+external:
+  it: { prompt: external/it/SYSTEM_PROMPT.md, harness: external/it/harness/read-only-policy.yaml, skills: external/it/skills/, inject: [context], access: read-only }
