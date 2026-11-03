@@ -89,16 +89,23 @@ export function BrandThemeProvider({ children }: { children: ReactNode }) {
   }, [brand.companyName, pathname]);
 
   // Browser tab icon follows the uploaded logo (default badge when none).
+  // Only retarget href: head links are React-managed, and removing them
+  // crashes React with "Cannot read properties of null (removeChild)".
   useEffect(() => {
     if (typeof document === "undefined") return;
-    document.head
-      .querySelectorAll('link[rel="icon"]')
-      .forEach((el) => el.remove());
-    const link = document.createElement("link");
-    link.rel = "icon";
-    link.href = brandFaviconHref(brand.logoDataUrl);
-    document.head.appendChild(link);
-  }, [brand.logoDataUrl]);
+    const href = brandFaviconHref(brand.logoDataUrl);
+    const links = document.head.querySelectorAll<HTMLLinkElement>('link[rel="icon"]');
+    if (links.length === 0) {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = href;
+      document.head.appendChild(link);
+      return;
+    }
+    links.forEach((el) => {
+      if (el.getAttribute("href") !== href) el.setAttribute("href", href);
+    });
+  }, [brand.logoDataUrl, pathname]);
 
   useEffect(() => {
     // Instant first paint from cache, then the database truth.
