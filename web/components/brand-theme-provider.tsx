@@ -6,10 +6,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 import {
+  DEFAULT_COMPANY_NAME,
   cssVarsForBrand,
   defaultBrandSettings,
   type BrandSettings,
@@ -64,6 +67,25 @@ export function BrandThemeProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [storage, setStorage] = useState<StoredTarget | "local">("local");
   const [supabaseError, setSupabaseError] = useState<string | null>(null);
+  const pathname = usePathname();
+  const prevName = useRef(DEFAULT_COMPANY_NAME);
+
+  // Every page title carries the company name: swap the name segment as the
+  // brand changes or the route swaps in fresh static metadata. No-op while
+  // the brand is the default, so SSR titles stay byte-identical.
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const current = document.title;
+    if (prevName.current !== DEFAULT_COMPANY_NAME && current.includes(prevName.current)) {
+      document.title = current.split(prevName.current).join(brand.companyName);
+    } else if (
+      brand.companyName !== DEFAULT_COMPANY_NAME &&
+      current.includes(DEFAULT_COMPANY_NAME)
+    ) {
+      document.title = current.split(DEFAULT_COMPANY_NAME).join(brand.companyName);
+    }
+    prevName.current = brand.companyName;
+  }, [brand.companyName, pathname]);
 
   useEffect(() => {
     // Instant first paint from cache, then the database truth.

@@ -86,7 +86,7 @@ before(() => {
   mkdirSync(outDir, { recursive: true });
   const webRequire = createRequire(path.join(webDir, "package.json"));
   const ts = webRequire("typescript");
-  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "photo-styles.ts", "style-catalog.ts", "style-samples.ts", "campaign-video.ts"]) {
+  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "brand.ts", "photo-styles.ts", "style-catalog.ts", "style-samples.ts", "campaign-video.ts"]) {
     const source = readFileSync(path.join(webDir, "lib", file), "utf8");
     const { outputText } = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
@@ -372,6 +372,20 @@ describe("narrative", () => {
     assert.ok(
       narrativeLib.buildCaption(fakeTrend, fakeProduct, "en").includes("Batch order")
     );
+  });
+
+  it("carries the active company name, defaulting to Casa de Brasas", () => {
+    const branded = narrativeLib.buildNarrative(
+      fakeTrend,
+      fakeProduct,
+      "instagram",
+      "es",
+      "Parrilla El Faro"
+    );
+    assert.ok(branded.includes("Parrilla El Faro"));
+    assert.ok(!branded.includes("Casa de Brasas"));
+    const fallback = narrativeLib.buildNarrative(fakeTrend, fakeProduct, "instagram", "es");
+    assert.ok(fallback.includes("Casa de Brasas"));
   });
 });
 

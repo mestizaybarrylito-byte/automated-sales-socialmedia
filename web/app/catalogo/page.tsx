@@ -1,8 +1,8 @@
 import { products } from "@/lib/products";
-import { WHATSAPP_NUMBER, formatMXN, productOrderMessage, waOrderLink } from "@/lib/config";
+import { WHATSAPP_NUMBER, formatMXN } from "@/lib/config";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { WhatsappOrderButton } from "@/components/whatsapp-order-button";
 
 export const metadata = {
   title: "Catálogo y pedidos por WhatsApp — Casa de Brasas",
@@ -41,15 +41,7 @@ export default function CatalogoPage() {
               {p.description}
             </CardContent>
             <div className="p-6 pt-0">
-              <Button asChild className="w-full">
-                <a
-                  href={waOrderLink(productOrderMessage(p.name, p.priceMXN))}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Pedir por WhatsApp
-                </a>
-              </Button>
+              <WhatsappOrderButton productName={p.name} priceMXN={p.priceMXN} />
             </div>
           </Card>
         ))}

@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { BrandCompanyName } from "@/components/brand-mark";
 
 const ALL: ApprovalStatus[] = ["pending", "approved", "rejected", "changes"];
 
@@ -80,7 +81,7 @@ export function ApprovalHub() {
                 <div className="photo-frame h-44">
                   <img src={thumb} alt={item.title} loading="lazy" />
                   <span className="absolute top-2 right-2 z-10 font-serif text-xs italic bg-charcoal-900/70 text-cream px-2 py-0.5 rounded-sm">
-                    Casa de Brasas
+                    <BrandCompanyName />
                   </span>
                 </div>
               ) : (

@@ -1,6 +1,7 @@
 import type { Product } from "@/lib/products";
 import type { Network, Trend } from "@/lib/trends";
 import type { Locale } from "./settings";
+import { DEFAULT_COMPANY_NAME, applyBrandName } from "./brand";
 
 type Category = Product["category"];
 
@@ -258,16 +259,20 @@ export function buildNarrative(
   trend: Trend,
   product: Product,
   network: Network,
-  locale: Locale = "es"
+  locale: Locale = "es",
+  companyName: string = DEFAULT_COMPANY_NAME
 ): string {
   const s = T[locale];
   const cleanName = product.name.replace("[PLACEHOLDER] ", "");
-  return [
-    s.lead(network, cleanName, s.category[product.category]),
-    s.trendBit(trend.title, trend.hashtag, trend.visualStyle),
-    s.styleBit(s.voices[network]),
-    s.tail,
-  ].join(" ");
+  return applyBrandName(
+    [
+      s.lead(network, cleanName, s.category[product.category]),
+      s.trendBit(trend.title, trend.hashtag, trend.visualStyle),
+      s.styleBit(s.voices[network]),
+      s.tail,
+    ].join(" "),
+    companyName
+  );
 }
 
 /** Short caption derived from the (possibly edited) prompt for the preview footer. */

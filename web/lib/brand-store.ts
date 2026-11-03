@@ -21,7 +21,7 @@ export const BRAND_STORAGE_KEY = "casa-de-brasas-brand-v1";
 export const BRAND_ROW_ID = "default";
 export const BRAND_UPDATED_EVENT = "brand-updated";
 
-interface BrandRow {
+export interface BrandRow {
   id: string;
   logo_data_url: string | null;
   company_name: unknown;
@@ -32,7 +32,7 @@ interface BrandRow {
   updated_at: string;
 }
 
-function rowToSettings(row: BrandRow): BrandSettings {
+export function rowToSettings(row: BrandRow): BrandSettings {
   return validateBrandSettings({
     logoDataUrl: row.logo_data_url,
     companyName: row.company_name,
@@ -42,6 +42,19 @@ function rowToSettings(row: BrandRow): BrandSettings {
     step3StyleIds: row.step3_style_ids,
     updatedAt: row.updated_at,
   });
+}
+
+export function brandSettingsToRow(settings: BrandSettings): BrandRow {
+  return {
+    id: BRAND_ROW_ID,
+    logo_data_url: settings.logoDataUrl,
+    company_name: settings.companyName,
+    palette: settings.palette,
+    theme: settings.theme,
+    fonts: settings.fonts,
+    step3_style_ids: settings.step3StyleIds,
+    updated_at: settings.updatedAt,
+  };
 }
 
 /** Synchronous local read for first paint (SSR-safe, never throws). */
@@ -102,16 +115,7 @@ export async function saveBrandToSupabase(settings: BrandSettings): Promise<void
   const res = await fetch(restUrl(), {
     method: "POST",
     headers: restHeaders({ Prefer: "resolution=merge-duplicates" }),
-    body: JSON.stringify({
-      id: BRAND_ROW_ID,
-      logo_data_url: settings.logoDataUrl,
-      company_name: settings.companyName,
-      palette: settings.palette,
-      theme: settings.theme,
-      fonts: settings.fonts,
-      step3_style_ids: settings.step3StyleIds,
-      updated_at: settings.updatedAt,
-    } satisfies BrandRow),
+    body: JSON.stringify(brandSettingsToRow(settings)),
   });
   if (!res.ok) {
     throw new Error(`Supabase guardó ${res.status}`);

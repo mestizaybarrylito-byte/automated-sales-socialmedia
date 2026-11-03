@@ -17,6 +17,7 @@ import { createRequire } from "node:module";
 const webDir = path.resolve(import.meta.dirname, "..");
 const outDir = path.join(webDir, "node_modules", ".cache", `brand-test-${process.pid}`);
 let brand;
+let store;
 
 after(() => {
   rmSync(outDir, { recursive: true, force: true });
@@ -26,14 +27,22 @@ before(() => {
   mkdirSync(outDir, { recursive: true });
   const webRequire = createRequire(path.join(webDir, "package.json"));
   const ts = webRequire("typescript");
-  for (const file of ["brand.ts", "photo-styles.ts"]) {
-    const source = readFileSync(path.join(webDir, "lib", file), "utf8");
+  for (const file of ["brand.ts", "photo-styles.ts", "brand-store.ts"]) {
+    let source = readFileSync(path.join(webDir, "lib", file), "utf8");
+    // brand-store.ts uses the @/ path alias for the Supabase stub; rewire it
+    // to a local stub so the real module (mappers included) loads in Node.
+    source = source.replaceAll('"@/supabase/client"', '"./supabase-client-stub.js"');
     const { outputText } = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
     });
     writeFileSync(path.join(outDir, file.replace(/\.ts$/, ".js")), outputText);
   }
+  writeFileSync(
+    path.join(outDir, "supabase-client-stub.js"),
+    `module.exports = { isSupabaseConfigured: () => false, getSupabaseConfig: () => { throw new Error("not configured"); } };`
+  );
   brand = createRequire(path.join(outDir, "entry.js"))("./brand.js");
+  store = createRequire(path.join(outDir, "entry.js"))("./brand-store.js");
 });
 
 describe("normalizeHex", () => {
@@ -296,6 +305,40 @@ describe("fonts", () => {
   it("resolves stacks and falls back on unknown ids", () => {
     assert.ok(brand.resolveFontStack("georgia").includes("Georgia"));
     assert.equal(brand.resolveFontStack("nope"), brand.resolveFontStack("system-sans"));
+  });
+});
+
+describe("applyBrandName", () => {
+  it("swaps the default name and leaves the default untouched", () => {
+    assert.equal(
+      brand.applyBrandName("Hola Casa de Brasas, bienvenido", "Parrilla El Faro"),
+      "Hola Parrilla El Faro, bienvenido"
+    );
+    assert.equal(
+      brand.applyBrandName("Hola Casa de Brasas, bienvenido", "Casa de Brasas"),
+      "Hola Casa de Brasas, bienvenido"
+    );
+    assert.equal(brand.applyBrandName("sin marca aquí", "Parrilla El Faro"), "sin marca aquí");
+  });
+});
+
+describe("brandRow", () => {
+  it("round-trips name, logo and palette through the DB row", () => {
+    const settings = brand.validateBrandSettings({
+      logoDataUrl: "data:image/png;base64,AAA",
+      companyName: "Parrilla El Faro",
+      palette: ["#111111", "#222222"],
+      theme: { primary: "#333333" },
+      fonts: { heading: "verdana" },
+      step3StyleIds: ["felt"],
+      updatedAt: "2026-11-03T00:00:00.000Z",
+    });
+    const row = store.brandSettingsToRow(settings);
+    assert.equal(row.id, "default");
+    assert.equal(row.logo_data_url, "data:image/png;base64,AAA");
+    assert.equal(row.company_name, "Parrilla El Faro");
+    assert.deepEqual(row.palette, ["#111111", "#222222"]);
+    assert.deepEqual(store.rowToSettings(row), settings);
   });
 });
 

@@ -5,6 +5,8 @@
  * WHATSAPP_WA_NUMBER is the digits-only form used in wa.me/ deep links.
  */
 
+import { DEFAULT_COMPANY_NAME, applyBrandName } from "./brand";
+
 export const WHATSAPP_NUMBER = "+52 999 354 0057";
 
 /** Digits-only form for wa.me/ links (country code + number, no +, spaces, or dashes). */
@@ -19,9 +21,16 @@ export function waOrderLink(message: string): string {
 }
 
 /** Prefilled order message for a single product (name shown without placeholder prefix). */
-export function productOrderMessage(productName: string, priceMXN: number): string {
+export function productOrderMessage(
+  productName: string,
+  priceMXN: number,
+  companyName: string = DEFAULT_COMPANY_NAME
+): string {
   const clean = productName.replace(/^\[PLACEHOLDER\]\s*/, "");
-  return `Hola Casa de Brasas, quiero pedir: ${clean} ($${priceMXN} MXN, precio por confirmar). ¿Me ayudas con mi pedido del lote semanal?`;
+  return applyBrandName(
+    `Hola Casa de Brasas, quiero pedir: ${clean} ($${priceMXN} MXN, precio por confirmar). ¿Me ayudas con mi pedido del lote semanal?`,
+    companyName
+  );
 }
 
 export function formatMXN(amount: number): string {

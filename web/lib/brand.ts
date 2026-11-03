@@ -140,6 +140,18 @@ export function normalizeCompanyName(input: unknown): string {
   return clean.slice(0, MAX_COMPANY_NAME);
 }
 
+/**
+ * Swap the default company name inside a template string (localized copy,
+ * order messages, narratives) for the active brand. No-op on the default.
+ */
+export function applyBrandName(text: string, companyName: string): string {
+  const name = normalizeCompanyName(companyName);
+  if (name === DEFAULT_COMPANY_NAME || !text.includes(DEFAULT_COMPANY_NAME)) {
+    return text;
+  }
+  return text.split(DEFAULT_COMPANY_NAME).join(name);
+}
+
 export const MAX_STEP3_STYLES = 5;
 
 export function defaultBrandSettings(): BrandSettings {

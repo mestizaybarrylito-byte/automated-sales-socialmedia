@@ -12,6 +12,7 @@ import { loadPhotoStyles } from "@/lib/style-catalog";
 import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
 import { recordArtVideo, supportsVideoExport, videoDims } from "@/lib/campaign-video";
 import { useBrand } from "@/components/brand-theme-provider";
+import { applyBrandName } from "@/lib/brand";
 import { StyleDrawer } from "@/components/owner/style-drawer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -94,7 +95,7 @@ export function CampaignWizard({
     const p = products.find((x) => x.slug === slug);
     if (p) {
       // The prompt is always (re)generated in the selected language.
-      setNarrative(buildNarrative(trend, p, network.id, locale));
+      setNarrative(buildNarrative(trend, p, network.id, locale, brand.companyName));
       setPromptTouched(false);
     }
     setStatus("idle");
@@ -105,7 +106,7 @@ export function CampaignWizard({
 
   function regenerate() {
     if (product) {
-      setNarrative(buildNarrative(trend, product, network.id, locale));
+      setNarrative(buildNarrative(trend, product, network.id, locale, brand.companyName));
       setPromptTouched(false);
     }
   }
@@ -114,9 +115,10 @@ export function CampaignWizard({
   // the header language; user-written text is never overwritten.
   useEffect(() => {
     if (product && !promptTouched) {
-      setNarrative(buildNarrative(trend, product, network.id, locale));
+      setNarrative(buildNarrative(trend, product, network.id, locale, brand.companyName));
     }
-  }, [locale]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale, brand.companyName]);
 
   // Brand logo for the upper-right watermark (null = "B" badge fallback).
   useEffect(() => {
@@ -386,7 +388,7 @@ export function CampaignWizard({
       {step === 0 && (
         <div className="mt-8">
           <h2 className="text-2xl">{t.s1Title}</h2>
-          <p className="text-charcoal-800/70 mt-1">{t.s1Desc}</p>
+          <p className="text-charcoal-800/70 mt-1">{applyBrandName(t.s1Desc, brand.companyName)}</p>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3" role="radiogroup" aria-label={t.productsLabel}>
             {products.map((p) => {
               const selected = p.slug === productSlug;
