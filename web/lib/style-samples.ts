@@ -1,20 +1,18 @@
 /**
- * Sample imagery for the identidad style gallery (drawer + pinned strip).
+ * Sample imagery for the style gallery (wizard step 3 + identidad curation).
  *
- * Bright, vivid, daylight food photography — deliberately NOT the dark
- * moody catalog shots — so every style thumbnail reads at a glance, in the
- * spirit of a multimedia style gallery. Each style maps deterministically
- * to one sample, so the strip and the drawer always agree.
+ * These are Meta's own example photos from https://www.meta.ai/ (the public
+ * "create images / edit photos" demo pair: the original ramen bowl and its
+ * Meta-AI-edited blue-background version), vendored so the canvas renderer
+ * can paint each style's filter/effect over them same-origin. (c) Meta.
+ * Each style maps deterministically to one sample, so the wizard strip,
+ * the drawer and the identidad curation always agree.
  * Pure data — covered by `npm test`.
  */
 
 export const STYLE_SAMPLE_IMAGES: string[] = [
-  "/images/samples/tacos-al-pastor.jpg",
-  "/images/samples/elotes.jpg",
-  "/images/samples/salsas-trio.jpg",
-  "/images/samples/arrachera-dia.jpg",
-  "/images/samples/verduras-asadas.jpg",
-  "/images/samples/queso-fundido.jpg",
+  "/images/meta-ai/ramen.webp",
+  "/images/meta-ai/ramen-blue.webp",
 ];
 
 function hashId(id: string): number {

@@ -11,6 +11,7 @@ import { strings } from "@/lib/i18n";
 import { DEFAULT_STYLE_ID, PHOTO_STYLES, getPhotoStyleFrom, getStep3Styles, type PhotoStyle } from "@/lib/photo-styles";
 import { loadPhotoStyles } from "@/lib/style-catalog";
 import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
+import { STYLE_SAMPLE_IMAGES, sampleImageForStyle } from "@/lib/style-samples";
 import { recordArtVideo, supportsVideoExport, videoDims } from "@/lib/campaign-video";
 import { useBrand } from "@/components/brand-theme-provider";
 import { applyBrandName } from "@/lib/brand";
@@ -38,6 +39,25 @@ function formatPrice(amount: number, locale: Locale) {
 
 function cleanName(p: { name: string }) {
   return p.name.replace("[PLACEHOLDER] ", "");
+}
+
+/** Preloads Meta's example photos; individual failures resolve to null. */
+async function loadSampleImages(): Promise<Map<string, HTMLImageElement>> {
+  const entries = await Promise.all(
+    STYLE_SAMPLE_IMAGES.map(async (src) => {
+      try {
+        const img = await loadArtImage(src);
+        return [src, img] as const;
+      } catch {
+        return null;
+      }
+    })
+  );
+  const map = new Map<string, HTMLImageElement>();
+  for (const entry of entries) {
+    if (entry) map.set(entry[0], entry[1]);
+  }
+  return map;
 }
 
 type Format = "photo" | "video";
@@ -169,20 +189,23 @@ export function CampaignWizard({
     if (first) setStyleId(first.id);
   });
 
-  // Real style thumbnails, refreshed with the current content.
+  // Step-3 style thumbnails, rendered over Meta's example photos (the same
+  // gallery meta.ai shows), refreshed with the current content. The finished
+  // photo/video still renders the user's own product (see renderPhoto).
   useEffect(() => {
     if (step !== 2 || !product) return;
     let cancelled = false;
     setThumbs(null);
     (async () => {
       try {
-        const image = await loadArtImage(productImage(product));
+        const samples = await loadSampleImages();
         if (cancelled) return;
+        const fallback = Array.from(samples.values())[0];
+        if (!fallback) throw new Error("no samples");
         const { width: W, height: H } = network.canvas;
         const tw = 200;
         const th = Math.max(2, Math.round((tw * H) / W));
         const art = {
-          image,
           hashtag: trend.hashtag,
           productName: cleanName(product),
           overlayText,
@@ -194,7 +217,11 @@ export function CampaignWizard({
         };
         const list = getStep3Styles(styles, brand.step3StyleIds).map((style) => ({
           id: style.id,
-          url: renderArtCanvas({ ...art, style }).toDataURL("image/png"),
+          url: renderArtCanvas({
+            ...art,
+            image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+            style,
+          }).toDataURL("image/png"),
         }));
         if (!cancelled) setThumbs(list);
       } catch {
@@ -215,8 +242,9 @@ export function CampaignWizard({
     setDrawerThumbs([]);
     setDrawerFailed(false);
     (async () => {
-      const image = await loadArtImage(productImage(product)).catch(() => null);
-      if (!image) {
+      const samples = await loadSampleImages().catch(() => null);
+      const fallback = samples?.size ? Array.from(samples.values())[0] : undefined;
+      if (!samples || !fallback) {
         if (!cancelled) setDrawerFailed(true);
         return;
       }
@@ -225,7 +253,6 @@ export function CampaignWizard({
       const tw = 160;
       const th = Math.max(2, Math.round((tw * H) / W));
       const art = {
-        image,
         hashtag: trend.hashtag,
         productName: cleanName(product),
         overlayText,
@@ -240,7 +267,11 @@ export function CampaignWizard({
         try {
           list.push({
             id: style.id,
-            url: renderArtCanvas({ ...art, style }).toDataURL("image/jpeg", 0.82),
+            url: renderArtCanvas({
+              ...art,
+              image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              style,
+            }).toDataURL("image/jpeg", 0.82),
           });
         } catch {
           continue;

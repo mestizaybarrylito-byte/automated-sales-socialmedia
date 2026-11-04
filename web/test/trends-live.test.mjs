@@ -527,7 +527,7 @@ describe("styleSamples", () => {
     assert.ok(images.length >= 2);
     assert.equal(new Set(images).size, images.length);
     for (const src of images) {
-      assert.match(src, /^\/images\/samples\/.+\.jpg$/);
+      assert.match(src, /^\/images\/meta-ai\/.+\.webp$/);
       assert.ok(existsSync(path.join(webDir, "public", src.slice(1))), src);
     }
     for (const style of stylesLib.PHOTO_STYLES) {
