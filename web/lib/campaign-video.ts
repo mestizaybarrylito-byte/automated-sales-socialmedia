@@ -97,3 +97,76 @@ export async function recordArtVideo(options: {
     extension: mimeType.includes("mp4") ? "mp4" : "webm",
   };
 }
+
+/**
+ * Records a frame-loop clip: cycles the given frame images at the loop
+ * fps for the requested loops — a real playable video file of a
+ * generated animation, no external API needed.
+ */
+export async function recordFrameLoop(options: {
+  images: HTMLImageElement[];
+  width: number;
+  height: number;
+  fps?: number;
+  loops?: number;
+}): Promise<{ url: string; extension: string }> {
+  const { images, width, height, fps = 6, loops = 3 } = options;
+  if (!supportsVideoExport()) throw new Error("video-unsupported");
+  if (images.length === 0) throw new Error("video-no-frames");
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas 2D unavailable");
+
+  const stream = canvas.captureStream(fps);
+  const mimeType = pickMimeType();
+  const recorder = new MediaRecorder(
+    stream,
+    mimeType ? { mimeType, videoBitsPerSecond: 8_000_000 } : undefined
+  );
+  const chunks: BlobPart[] = [];
+  recorder.ondataavailable = (event) => {
+    if (event.data && event.data.size > 0) chunks.push(event.data);
+  };
+  const stopped = new Promise<void>((resolve) => {
+    recorder.onstop = () => resolve();
+  });
+
+  const totalFrames = images.length * Math.max(1, loops);
+  const frameMs = 1000 / fps;
+  recorder.start();
+  await new Promise<void>((resolve) => {
+    let shown = 0;
+    const timer = setInterval(() => {
+      const img = images[shown % images.length];
+      ctx.fillStyle = "#1a1c1e";
+      ctx.fillRect(0, 0, width, height);
+      const scale = Math.max(width / img.naturalWidth, height / img.naturalHeight);
+      const dw = img.naturalWidth * scale;
+      const dh = img.naturalHeight * scale;
+      ctx.drawImage(img, (width - dw) / 2, (height - dh) / 2, dw, dh);
+      shown++;
+      if (shown >= totalFrames) {
+        clearInterval(timer);
+        resolve();
+      }
+    }, frameMs);
+    // Safety net: never record forever.
+    setTimeout(() => {
+      clearInterval(timer);
+      resolve();
+    }, totalFrames * frameMs + 3000);
+  });
+  if (recorder.state !== "inactive") recorder.stop();
+  await stopped;
+  stream.getTracks().forEach((track) => track.stop());
+
+  const blob = new Blob(chunks, { type: mimeType || "video/webm" });
+  if (blob.size === 0) throw new Error("video-empty");
+  return {
+    url: URL.createObjectURL(blob),
+    extension: mimeType.includes("mp4") ? "mp4" : "webm",
+  };
+}

@@ -26,6 +26,8 @@ let stylesLib;
 let catalogLib;
 let samplesLib;
 let videoLib;
+let mediaLib;
+let animateLib;
 
 function rssItem({ title, traffic = null, news = null, cdataTitle = false }) {
   const t = cdataTitle ? `<![CDATA[${title}]]>` : title;
@@ -86,7 +88,7 @@ before(() => {
   mkdirSync(outDir, { recursive: true });
   const webRequire = createRequire(path.join(webDir, "package.json"));
   const ts = webRequire("typescript");
-  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "brand.ts", "photo-styles.ts", "style-catalog.ts", "style-samples.ts", "campaign-video.ts"]) {
+  for (const file of ["trends.ts", "trends-live.ts", "settings.ts", "i18n.ts", "narrative.ts", "brand.ts", "photo-styles.ts", "style-catalog.ts", "style-samples.ts", "campaign-video.ts", "drawer-media.ts", "carousel-animate.ts"]) {
     const source = readFileSync(path.join(webDir, "lib", file), "utf8");
     const { outputText } = ts.transpileModule(source, {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
@@ -102,6 +104,8 @@ before(() => {
   catalogLib = compiledRequire("./style-catalog.js");
   samplesLib = compiledRequire("./style-samples.js");
   videoLib = compiledRequire("./campaign-video.js");
+  mediaLib = compiledRequire("./drawer-media.js");
+  animateLib = compiledRequire("./carousel-animate.js");
 });
 
 describe("parseTrendsRss", () => {
@@ -538,6 +542,63 @@ describe("styleSamples", () => {
     // The catalog spreads across every sample (no dead image).
     const used = new Set(stylesLib.PHOTO_STYLES.map((s) => samplesLib.sampleImageForStyle(s.id)));
     assert.equal(used.size, images.length);
+  });
+});
+
+describe("drawerMedia", () => {
+  it("lists the vendored Meta creations with real GIF files", () => {
+    const items = mediaLib.DRAWER_CAROUSEL_IMAGES;
+    assert.equal(items.length, 4);
+    assert.equal(new Set(items.map((m) => m.src)).size, items.length);
+    assert.deepEqual(
+      items.map((m) => m.id),
+      ["meta-1", "meta-2", "meta-3", "meta-4"]
+    );
+    for (const media of items) {
+      assert.match(media.src, /^\/images\/drawer\/.+\.gif$/);
+      assert.equal(typeof media.alt, "string");
+      assert.ok(media.alt.length > 0, media.src);
+      const file = path.join(webDir, "public", media.src.slice(1));
+      assert.ok(existsSync(file), media.src);
+      const head = readFileSync(file).subarray(0, 6).toString("ascii");
+      assert.ok(head.startsWith("GIF"), `${media.src}: ${head}`);
+    }
+  });
+});
+
+describe("carouselAnimate", () => {
+  it("keeps one brief per carousel image with 6 motion beats", () => {
+    assert.equal(animateLib.ANIMATION_FPS, 6);
+    assert.equal(animateLib.DEFAULT_FRAME_COUNT, 6);
+    const ids = mediaLib.DRAWER_CAROUSEL_IMAGES.map((m) => m.id);
+    assert.deepEqual(Object.keys(animateLib.IMAGE_ANIMATION_BRIEFS).sort(), [...ids].sort());
+    for (const id of ids) {
+      const brief = animateLib.IMAGE_ANIMATION_BRIEFS[id];
+      assert.ok(brief.base.length > 50, id);
+      assert.equal(brief.beats.length, 6, id);
+    }
+    // The pool brief carries the requested clay stop-motion loop.
+    assert.ok(animateLib.IMAGE_ANIMATION_BRIEFS["meta-4"].base.includes("flotador inflable de flamenco rosa"));
+    assert.ok(animateLib.IMAGE_ANIMATION_BRIEFS["meta-4"].base.includes("plastilina"));
+  });
+
+  it("builds ordered frame prompts with beat, lock, and counter", () => {
+    const plans = animateLib.buildFramePrompts("meta-4");
+    assert.equal(plans.length, 6);
+    assert.equal(new Set(plans).size, 6);
+    plans.forEach((prompt, i) => {
+      assert.ok(prompt.includes("flotador inflable de flamenco rosa"), `frame ${i + 1}`);
+      assert.ok(prompt.includes(`Fotograma ${i + 1} de 6`), `frame ${i + 1}`);
+      assert.ok(prompt.includes("idénticos"), `frame ${i + 1}`);
+      assert.ok(prompt.includes("un solo fotograma fijo"), `frame ${i + 1}`);
+      assert.ok(prompt.includes("sin texto"), `frame ${i + 1}`);
+    });
+    assert.ok(plans[3].includes("muerde el filete"));
+    assert.ok(plans[5].includes("cierre del bucle"));
+    assert.equal(animateLib.buildFramePrompts("meta-1", 3).length, 3);
+    assert.equal(animateLib.buildFramePrompts("unknown-id"), null);
+    assert.equal(animateLib.buildFramePrompts("meta-1", 0), null);
+    assert.equal(animateLib.buildFramePrompts("meta-1", 13), null);
   });
 });
 

@@ -5,20 +5,11 @@ import { useBrand } from "@/components/brand-theme-provider";
 import { Button } from "@/components/ui/button";
 import { StyleDrawer, type DrawerThumb } from "@/components/owner/style-drawer";
 import { StyleThumbImage } from "@/components/owner/style-thumb-card";
-import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
+import { loadArtImage, renderStyleArt } from "@/lib/campaign-art";
 import { PHOTO_STYLES } from "@/lib/photo-styles";
 import { MAX_STEP3_STYLES } from "@/lib/brand";
 import { STYLE_SAMPLE_IMAGES, sampleImageForStyle } from "@/lib/style-samples";
 import { cn } from "@/lib/utils";
-
-/** Fixed sample content so the strip matches the wizard's "photo style" look. */
-const SAMPLE = {
-  hashtag: "#LoteSemanal",
-  productName: "Ribeye al Carbón",
-  caption: "Pedido por lote semanal · entrega jueves",
-  width: 1080,
-  height: 1080,
-};
 
 /** Preloads every sample photo; individual failures resolve to null. */
 async function loadSampleImages(): Promise<Map<string, HTMLImageElement>> {
@@ -64,34 +55,20 @@ export function Step3StylePicker() {
     void updateBrand({ step3StyleIds: next });
   }
 
-  // Pinned strip thumbnails, refreshed with pins, logo and company name.
+  // Pinned strip thumbnails: preset-gallery tiles identical to
+  // meta.ai/create's "Valores predefinidos" (style art only, no campaign
+  // copy), refreshed with the pins.
   useEffect(() => {
     let cancelled = false;
     setStrip(null);
     setStripFailed(false);
     (async () => {
       try {
-        const [samples, logo] = await Promise.all([
-          loadSampleImages(),
-          brand.logoDataUrl
-            ? loadArtImage(brand.logoDataUrl).catch(() => null)
-            : Promise.resolve(null),
-        ]);
+        const samples = await loadSampleImages();
         if (cancelled) return;
         const fallback = Array.from(samples.values())[0];
         if (!fallback) throw new Error("no samples");
         const tw = 200;
-        const th = Math.max(2, Math.round((tw * SAMPLE.height) / SAMPLE.width));
-        const art = {
-          hashtag: SAMPLE.hashtag,
-          productName: SAMPLE.productName,
-          overlayText: "",
-          caption: SAMPLE.caption,
-          width: tw,
-          height: th,
-          logo,
-          companyName: brand.companyName,
-        };
         const list = pinsKey
           .split(",")
           .filter(Boolean)
@@ -99,9 +76,10 @@ export function Step3StylePicker() {
           .filter((s) => s !== undefined)
           .map((style) => ({
             id: style.id,
-            url: renderArtCanvas({
-              ...art,
+            url: renderStyleArt({
               image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              width: tw,
+              height: tw,
               style,
             }).toDataURL("image/png"),
           }));
@@ -117,21 +95,18 @@ export function Step3StylePicker() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pinsKey, brand.logoDataUrl, brand.companyName]);
+  }, [pinsKey]);
 
-  // Drawer thumbnails, rendered fresh on every open in small batches.
+  // Drawer thumbnails: preset-gallery tiles identical to meta.ai/create's
+  // "Valores predefinidos" (style art only, no campaign copy), rendered
+  // fresh on every open in small batches.
   useEffect(() => {
     if (!drawerOpen) return;
     let cancelled = false;
     setDrawerThumbs([]);
     setDrawerFailed(false);
     (async () => {
-      const [samples, logo] = await Promise.all([
-        loadSampleImages(),
-        brand.logoDataUrl
-          ? loadArtImage(brand.logoDataUrl).catch(() => null)
-          : Promise.resolve(null),
-      ]);
+      const samples = await loadSampleImages();
       const fallback = Array.from(samples.values())[0];
       if (!fallback) {
         if (!cancelled) setDrawerFailed(true);
@@ -139,25 +114,15 @@ export function Step3StylePicker() {
       }
       if (cancelled) return;
       const tw = 160;
-      const th = Math.max(2, Math.round((tw * SAMPLE.height) / SAMPLE.width));
-      const art = {
-        hashtag: SAMPLE.hashtag,
-        productName: SAMPLE.productName,
-        overlayText: "",
-        caption: SAMPLE.caption,
-        width: tw,
-        height: th,
-        logo,
-        companyName: brand.companyName,
-      };
       const list: DrawerThumb[] = [];
       for (const style of PHOTO_STYLES) {
         try {
           list.push({
             id: style.id,
-            url: renderArtCanvas({
-              ...art,
+            url: renderStyleArt({
               image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              width: tw,
+              height: tw,
               style,
             }).toDataURL("image/jpeg", 0.82),
           });
@@ -249,6 +214,14 @@ export function Step3StylePicker() {
         closeLabel="Cerrar"
         loadingLabel="Generando miniaturas…"
         errorLabel="No se pudieron generar las miniaturas."
+        carouselTitle="Creaciones destacadas de Meta AI"
+        carouselPrevLabel="Anterior"
+        carouselNextLabel="Siguiente"
+        animateActionLabel="Generar animación"
+        animatingLabel="Generando animación…"
+        animateErrorLabel="No se pudo generar la animación. Inténtalo de nuevo."
+        backLabel="Volver"
+        downloadLabel="Descargar video"
         styles={PHOTO_STYLES}
         thumbs={drawerThumbs}
         failed={drawerFailed}

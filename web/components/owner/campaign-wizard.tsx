@@ -10,7 +10,7 @@ import { localeTag } from "@/lib/settings";
 import { strings } from "@/lib/i18n";
 import { DEFAULT_STYLE_ID, PHOTO_STYLES, getPhotoStyleFrom, getStep3Styles, type PhotoStyle } from "@/lib/photo-styles";
 import { loadPhotoStyles } from "@/lib/style-catalog";
-import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
+import { loadArtImage, renderArtCanvas, renderStyleArt } from "@/lib/campaign-art";
 import { STYLE_SAMPLE_IMAGES, sampleImageForStyle } from "@/lib/style-samples";
 import { recordArtVideo, supportsVideoExport, videoDims } from "@/lib/campaign-video";
 import { useBrand } from "@/components/brand-theme-provider";
@@ -192,9 +192,10 @@ export function CampaignWizard({
     if (first) setStyleId(first.id);
   });
 
-  // Step-3 style thumbnails, rendered over Meta's example photos (the same
-  // gallery meta.ai shows), refreshed with the current content. The finished
-  // photo/video still renders the user's own product (see renderPhoto).
+  // Step-3 style thumbnails: preset-gallery tiles identical to
+  // meta.ai/create's "Valores predefinidos" (style art only, no campaign
+  // copy). The finished photo/video still renders the user's own product
+  // with the full campaign layout (see renderPhoto).
   useEffect(() => {
     if (step !== 2 || !product) return;
     let cancelled = false;
@@ -208,21 +209,12 @@ export function CampaignWizard({
         const { width: W, height: H } = network.canvas;
         const tw = 200;
         const th = Math.max(2, Math.round((tw * H) / W));
-        const art = {
-          hashtag: trend.hashtag,
-          productName: cleanName(product),
-          overlayText,
-          caption,
-          width: tw,
-          height: th,
-          logo: logoImg,
-          companyName: brand.companyName,
-        };
         const list = getStep3Styles(styles, brand.step3StyleIds).map((style) => ({
           id: style.id,
-          url: renderArtCanvas({
-            ...art,
+          url: renderStyleArt({
             image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+            width: tw,
+            height: th,
             style,
           }).toDataURL("image/png"),
         }));
@@ -234,11 +226,13 @@ export function CampaignWizard({
     return () => {
       cancelled = true;
     };
-  }, [step, product, overlayText, caption, trend, network, styles, logoImg, brand.companyName, pinsKey]);
+  }, [step, product, network, styles, pinsKey]);
 
-  // Drawer thumbnails, rendered fresh on every open in small batches so a
-  // large catalog never blocks the UI; a style that fails to render keeps
-  // its placeholder instead of failing the whole drawer.
+  // Drawer thumbnails: preset-gallery tiles identical to meta.ai/create's
+  // "Valores predefinidos" (style art only, no campaign copy), rendered
+  // fresh on every open in small batches so a large catalog never blocks
+  // the UI; a style that fails to render keeps its placeholder instead of
+  // failing the whole drawer.
   useEffect(() => {
     if (!drawerOpen || !product) return;
     let cancelled = false;
@@ -255,24 +249,15 @@ export function CampaignWizard({
       const { width: W, height: H } = network.canvas;
       const tw = 160;
       const th = Math.max(2, Math.round((tw * H) / W));
-      const art = {
-        hashtag: trend.hashtag,
-        productName: cleanName(product),
-        overlayText,
-        caption,
-        width: tw,
-        height: th,
-        logo: logoImg,
-        companyName: brand.companyName,
-      };
       const list: { id: string; url: string }[] = [];
       for (const style of styles) {
         try {
           list.push({
             id: style.id,
-            url: renderArtCanvas({
-              ...art,
+            url: renderStyleArt({
               image: samples.get(sampleImageForStyle(style.id)) ?? fallback,
+              width: tw,
+              height: th,
               style,
             }).toDataURL("image/jpeg", 0.82),
           });
@@ -290,7 +275,7 @@ export function CampaignWizard({
     return () => {
       cancelled = true;
     };
-  }, [drawerOpen, product, overlayText, caption, trend, network, styles, logoImg, brand.companyName]);
+  }, [drawerOpen, product, network, styles]);
 
   // Release video blob URLs when replaced or unmounted.
   useEffect(() => () => {
@@ -871,6 +856,14 @@ export function CampaignWizard({
             closeLabel={t.drawerClose}
             loadingLabel={t.thumbsLoading}
             errorLabel={t.genError}
+            carouselTitle={t.carouselTitle}
+            carouselPrevLabel={t.carouselPrev}
+            carouselNextLabel={t.carouselNext}
+            animateActionLabel={t.carouselAnimate}
+            animatingLabel={t.carouselAnimating}
+            animateErrorLabel={t.carouselAnimateError}
+            backLabel={t.carouselBack}
+            downloadLabel={t.carouselDownload}
             styles={styles}
             thumbs={drawerThumbs}
             failed={drawerFailed}

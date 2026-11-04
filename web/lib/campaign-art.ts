@@ -723,6 +723,53 @@ export function renderArtCanvas(input: ArtInput): HTMLCanvasElement {
   return canvas;
 }
 
+export interface StyleArtInput {
+  image: HTMLImageElement;
+  width: number;
+  height: number;
+  style: PhotoStyle;
+}
+
+/**
+ * Preset-gallery tile matching meta.ai/create's "Valores predefinidos":
+ * the style's filter/effect/tint (plus its ornamental frame) over Meta's
+ * sample photo, with NO campaign copy — no watermark, brand line,
+ * caption, product name or hashtag. The style name is overlaid by
+ * StyleThumbImage, so drawer, wizard strip and identidad curation show
+ * tiles identical in structure to Meta's predefined-value previews.
+ */
+export function renderStyleArt(input: StyleArtInput): HTMLCanvasElement {
+  const { image, width: W, height: H, style } = input;
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Canvas 2D unavailable");
+
+  ctx.fillStyle = "#1a1c1e";
+  ctx.fillRect(0, 0, W, H);
+  try {
+    ctx.filter = style.filter;
+  } catch {
+    // Older engines ignore ctx.filter; tint + effect still carry the style.
+  }
+  drawCover(ctx, image, W, H);
+  try {
+    ctx.filter = "none";
+  } catch {
+    /* noop */
+  }
+  applyEffect(canvas, ctx, W, H, style.effect);
+  if (style.tint) {
+    ctx.fillStyle = style.tint;
+    ctx.fillRect(0, 0, W, H);
+  }
+  if (style.frame === "tarot") {
+    drawTarotFrame(ctx, W, H, Math.round(W * 0.06), W / 1080);
+  }
+  return canvas;
+}
+
 function drawWatermark(
   ctx: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,

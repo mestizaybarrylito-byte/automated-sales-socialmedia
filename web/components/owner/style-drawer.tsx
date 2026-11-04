@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CATEGORY_NAMES, STYLE_CATEGORIES, type PhotoStyle } from "@/lib/photo-styles";
 import { Button } from "@/components/ui/button";
+import { DrawerCarousel } from "@/components/owner/drawer-carousel";
 import { StyleThumbImage, StyleThumbSkeleton } from "@/components/owner/style-thumb-card";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +19,14 @@ export function StyleDrawer({
   closeLabel,
   loadingLabel,
   errorLabel,
+  carouselTitle,
+  carouselPrevLabel,
+  carouselNextLabel,
+  animateActionLabel,
+  animatingLabel,
+  animateErrorLabel,
+  backLabel,
+  downloadLabel,
   styles,
   thumbs,
   failed,
@@ -32,6 +41,14 @@ export function StyleDrawer({
   closeLabel: string;
   loadingLabel: string;
   errorLabel: string;
+  carouselTitle: string;
+  carouselPrevLabel: string;
+  carouselNextLabel: string;
+  animateActionLabel: string;
+  animatingLabel: string;
+  animateErrorLabel: string;
+  backLabel: string;
+  downloadLabel: string;
   styles: PhotoStyle[];
   thumbs: DrawerThumb[];
   failed: boolean;
@@ -96,8 +113,18 @@ export function StyleDrawer({
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
+          <DrawerCarousel
+            title={carouselTitle}
+            prevLabel={carouselPrevLabel}
+            nextLabel={carouselNextLabel}
+            animateActionLabel={animateActionLabel}
+            animatingLabel={animatingLabel}
+            animateErrorLabel={animateErrorLabel}
+            backLabel={backLabel}
+            downloadLabel={downloadLabel}
+          />
           {failed ? (
-            <p className="font-sans text-sm text-ember">{errorLabel}</p>
+            <p className="font-sans text-sm text-ember mt-4">{errorLabel}</p>
           ) : (
             <>
               {thumbs.length < styles.length && (
