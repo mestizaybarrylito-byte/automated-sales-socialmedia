@@ -1,0 +1,38 @@
+# Campaign Artist harness policy — agents_orig/campaign-artist/harness/policy.yaml
+# Specializes agents_orig/_template/harness/policy.yaml for the Campaign Artist.
+# Values MUST reference [BUSINESS_CONTEXT_SHEET] fields by name; never hardcode thresholds here.
+agent: "Campaign Artist"
+version: "1.0"
+data_refs:
+  - "[BUSINESS_CONTEXT_SHEET]"
+  - "Company_Type"
+  - "Products"
+  - "Brand_Design_Guidelines"
+allowed_actions:
+  - "read:[BUSINESS_CONTEXT_SHEET]"
+  - "propose:image-prompt-recipe"
+  - "propose:generated-creative-draft"
+prohibited_actions:
+  - "generate or forward imagery that misrepresents a Products entry"
+  - "bake text, prices, logos, or watermarks into generated pixels"
+  - "use synthetic/neon palettes or cold-dominant scenes (Visual_Identity)"
+  - "publish or schedule imagery without authorization_gates clearance"
+  - "publish Campaign Artist output without brand_harness PASSED token"
+authorization_gates:
+  - action: "publication"
+    approver: "Human Supervisor via CEO/COO"
+escalation:
+  to: "CGMO then CEO/COO then Human Supervisor"
+  conditions:
+    - "repeated brand_harness FAILED interceptions"
+    - "ambiguous creative brief"
+    - "dish fidelity dispute"
+brand_harness:
+  required_for: ["CGMO", "CRO", "BID", "Campaign Artist"]
+  pass_token: "[BRAND_HARNESS: PASSED]"
+  fail_token: "[BRAND_HARNESS: FAILED]"
+  criteria:
+    - "Premium Perception per Company_Type"
+    - "Visual Consistency per Visual_Identity and Logo_Placement"
+    - "Tone Consistency per Typography and brand voice"
+    - "Trend Integrity per Trend_Adaptation_Rule"

@@ -80,6 +80,8 @@ export function CampaignWizard({
   const [overlayText, setOverlayText] = useState("");
   const [status, setStatus] = useState<"idle" | "generating" | "done" | "error">("idle");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [aiPhoto, setAiPhoto] = useState<{ url: string; prompt: string } | null>(null);
+  const [aiStatus, setAiStatus] = useState<"idle" | "generating" | "error">("idle");
   const [styleId, setStyleId] = useState(
     () => getStep3Styles(PHOTO_STYLES)[0]?.id ?? DEFAULT_STYLE_ID
   );
@@ -324,6 +326,58 @@ export function CampaignWizard({
       });
     } catch {
       setStatus("error");
+    }
+  }
+
+  async function generateAiPhoto() {
+    if (!product || aiStatus === "generating") return;
+    setAiStatus("generating");
+    setAiPhoto(null);
+    try {
+      const res = await fetch("/api/ai/campaign-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productName: cleanName(product),
+          category: product.category,
+          trend: `${trend.title} (${trend.hashtag})`,
+          narrative: narrative.trim().slice(0, 300),
+          styleId,
+        }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as {
+        imageBase64: string;
+        mimeType: string;
+        prompt: string;
+      };
+      // Composite the AI photo through the campaign renderer so the final
+      // piece keeps the watermark, texts, hashtag, and network size. Photo
+      // treatments stay neutral (the model already applied the style).
+      const aiImg = await loadArtImage(`data:${data.mimeType};base64,${data.imageBase64}`);
+      const { width: W, height: H } = network.canvas;
+      const printStyle = {
+        ...getPhotoStyleFrom(styles, styleId),
+        filter: "none",
+        tint: null,
+        effect: { kind: "none" } as const,
+      };
+      const canvas = renderArtCanvas({
+        image: aiImg,
+        hashtag: trend.hashtag,
+        productName: cleanName(product),
+        overlayText,
+        caption,
+        width: W,
+        height: H,
+        style: printStyle,
+        logo: logoImg,
+        companyName: brand.companyName,
+      });
+      setAiPhoto({ url: canvas.toDataURL("image/png"), prompt: data.prompt });
+      setAiStatus("idle");
+    } catch {
+      setAiStatus("error");
     }
   }
 
@@ -671,6 +725,13 @@ export function CampaignWizard({
                     <Button onClick={() => renderPhoto(styleId)} disabled={busy}>
                       {status === "generating" ? t.generating : t.generate}
                     </Button>
+                    <Button
+                      variant="secondary"
+                      onClick={generateAiPhoto}
+                      disabled={busy || aiStatus === "generating"}
+                    >
+                      {aiStatus === "generating" ? t.generating : t.aiGenerate}
+                    </Button>
                     {previewUrl && (
                       <a
                         href={previewUrl}
@@ -702,6 +763,37 @@ export function CampaignWizard({
                 )}
                 {format === "photo" && status === "error" && (
                   <p className="text-ember">{t.genError}</p>
+                )}
+                {format === "photo" && aiStatus === "error" && (
+                  <p className="text-ember">{t.aiError}</p>
+                )}
+                {format === "photo" && aiPhoto && (
+                  <div className="pt-2 space-y-2">
+                    <img
+                      src={aiPhoto.url}
+                      alt={t.aiGenerate}
+                      className="w-full rounded-md border border-charcoal-900/15"
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {
+                          setPreviewUrl(aiPhoto.url);
+                          setStatus("done");
+                        }}
+                      >
+                        {t.aiUse}
+                      </Button>
+                      <a
+                        href={aiPhoto.url}
+                        download={`${network.id}-${trend.id}-${product.slug}-${styleId}-ai.png`}
+                        className="inline-flex items-center justify-center rounded-md font-sans font-medium h-9 px-4 text-sm border border-charcoal-900/25 text-charcoal-900 hover:bg-charcoal-900/5"
+                      >
+                        {t.download}
+                      </a>
+                    </div>
+                  </div>
                 )}
                 {format === "video" && videoStatus === "error" && (
                   <p className="text-ember">{t.videoError}</p>

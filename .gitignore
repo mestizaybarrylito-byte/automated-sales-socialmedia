@@ -6,3 +6,4 @@ runs/
 __pycache__/
 *.sqlite
 supabase/functions/.env
+/temp

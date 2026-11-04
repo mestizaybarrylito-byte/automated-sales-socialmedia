@@ -99,6 +99,9 @@ const es = {
     download: "Descargar PNG",
     genError:
       "No se pudo generar la imagen. Revisa que las fotos de producto existan e inténtalo de nuevo.",
+    aiGenerate: "Generar foto con IA",
+    aiUse: "Usar esta foto",
+    aiError: "No se pudo generar con IA. Inténtalo de nuevo.",
     previewTitle: "Vista previa lista para publicar",
     previewAlt: "Vista previa de campaña: {trend} con {product} para {network}",
     emptyTitle: "Aún no hay imagen",
@@ -223,6 +226,9 @@ const en: Strings = {
     download: "Download PNG",
     genError:
       "The image could not be generated. Check that the product photos exist and try again.",
+    aiGenerate: "Generate AI photo",
+    aiUse: "Use this photo",
+    aiError: "AI generation failed. Try again.",
     previewTitle: "Ready-to-publish preview",
     previewAlt: "Campaign preview: {trend} with {product} for {network}",
     emptyTitle: "No image yet",
@@ -345,6 +351,9 @@ const fil: Strings = {
     download: "I-download ang PNG",
     genError:
       "Hindi mabuo ang larawan. Suriin kung umiiral ang mga larawan ng produkto at subukang muli.",
+    aiGenerate: "Bumuo ng larawan gamit ang AI",
+    aiUse: "Gamitin ang larawang ito",
+    aiError: "Hindi makabuo gamit ang AI. Subukang muli.",
     previewTitle: "Preview na handa nang i-publish",
     previewAlt: "Preview ng campaign: {trend} kasama ang {product} para sa {network}",
     emptyTitle: "Wala pang larawan",
@@ -467,6 +476,9 @@ const kk: Strings = {
     download: "PNG жүктеу",
     genError:
       "Суретті жасау мүмкін болмады. Өнім суреттерінің бар-жоғын тексеріп, қайталаңыз.",
+    aiGenerate: "ЖИ фотосын жасау",
+    aiUse: "Осы фотоны қолдану",
+    aiError: "ЖИ арқылы жасалмады. Қайталаңыз.",
     previewTitle: "Жариялауға дайын алдын ала көрініс",
     previewAlt: "Науқан көрінісі: {network} үшін {product} қосылған {trend}",
     emptyTitle: "Әзірге сурет жоқ",
@@ -589,6 +601,9 @@ const sw: Strings = {
     download: "Pakua PNG",
     genError:
       "Picha haikuweza kutengenezwa. Hakikisha picha za bidhaa zipo na ujaribu tena.",
+    aiGenerate: "Tengeneza picha kwa AI",
+    aiUse: "Tumia picha hii",
+    aiError: "Imeshindikana kutengeneza kwa AI. Jaribu tena.",
     previewTitle: "Hakikisho tayari kuchapishwa",
     previewAlt: "Hakikisho la kampeni: {trend} pamoja na {product} kwa {network}",
     emptyTitle: "Hakuna picha bado",
@@ -711,6 +726,9 @@ const tr: Strings = {
     download: "PNG indir",
     genError:
       "Görsel oluşturulamadı. Ürün fotoğraflarının mevcut olduğunu doğrulayıp tekrar deneyin.",
+    aiGenerate: "YZ ile fotoğraf üret",
+    aiUse: "Bu fotoğrafı kullan",
+    aiError: "YZ ile üretilemedi. Tekrar deneyin.",
     previewTitle: "Yayınlamaya hazır önizleme",
     previewAlt: "Kampanya önizlemesi: {network} için {product} ile {trend}",
     emptyTitle: "Henüz görsel yok",
@@ -833,6 +851,9 @@ const hi: Strings = {
     download: "PNG डाउनलोड करें",
     genError:
       "छवि नहीं बन सकी। जांचें कि उत्पाद फ़ोटो मौजूद हैं और पुनः प्रयास करें।",
+    aiGenerate: "AI से फ़ोटो बनाएं",
+    aiUse: "यह फ़ोटो इस्तेमाल करें",
+    aiError: "AI से नहीं बन सका। पुनः प्रयास करें।",
     previewTitle: "प्रकाशन-योग्य पूर्वावलोकन",
     previewAlt: "अभियान पूर्वावलोकन: {network} के लिए {product} के साथ {trend}",
     emptyTitle: "अभी कोई छवि नहीं",
@@ -955,6 +976,9 @@ const fr: Strings = {
     download: "Télécharger le PNG",
     genError:
       "L’image n’a pas pu être générée. Vérifiez les photos produit et réessayez.",
+    aiGenerate: "Générer une photo IA",
+    aiUse: "Utiliser cette photo",
+    aiError: "Échec de la génération IA. Réessayez.",
     previewTitle: "Aperçu prêt à publier",
     previewAlt: "Aperçu de campagne : {trend} avec {product} pour {network}",
     emptyTitle: "Pas encore d’image",
@@ -1077,6 +1101,9 @@ const vi: Strings = {
     download: "Tải PNG",
     genError:
       "Không thể tạo ảnh. Hãy kiểm tra ảnh sản phẩm rồi thử lại.",
+    aiGenerate: "Tạo ảnh bằng AI",
+    aiUse: "Dùng ảnh này",
+    aiError: "Không tạo được bằng AI. Hãy thử lại.",
     previewTitle: "Bản xem trước sẵn sàng đăng",
     previewAlt: "Xem trước chiến dịch: {trend} cùng {product} cho {network}",
     emptyTitle: "Chưa có ảnh",
@@ -1199,6 +1226,9 @@ const bm: Strings = {
     download: "PNG jigi",
     genError:
       "Se ma se ka ja dilan. Fɛn jaw lajɛ ka segin a kan.",
+    aiGenerate: "Jaw dilan ni AI ye",
+    aiUse: "Jaw in ta",
+    aiError: "Se ma se ka dilan ni AI ye. Segin a kan.",
     previewTitle: "Jateminɛ laban",
     previewAlt: "Kanpani jateminɛ: {trend} ni {product} ye {network} kama",
     emptyTitle: "Ja tɛ yen fɔlɔ",
@@ -1321,6 +1351,9 @@ const ko: Strings = {
     download: "PNG 다운로드",
     genError:
       "이미지를 생성할 수 없습니다. 제품 사진이 있는지 확인하고 다시 시도하세요.",
+    aiGenerate: "AI 사진 생성",
+    aiUse: "이 사진 사용",
+    aiError: "AI 생성에 실패했습니다. 다시 시도하세요.",
     previewTitle: "게시 가능한 미리보기",
     previewAlt: "캠페인 미리보기: {network}용 {product}와(과) {trend}",
     emptyTitle: "아직 이미지 없음",
@@ -1443,6 +1476,9 @@ const pt: Strings = {
     download: "Descarregar PNG",
     genError:
       "Não foi possível gerar a imagem. Verifique as fotos de produto e tente de novo.",
+    aiGenerate: "Gerar foto com IA",
+    aiUse: "Usar esta foto",
+    aiError: "Falha na geração com IA. Tente de novo.",
     previewTitle: "Pré-visualização pronta a publicar",
     previewAlt: "Pré-visualização da campanha: {trend} com {product} para {network}",
     emptyTitle: "Ainda sem imagem",
@@ -1565,6 +1601,9 @@ const hu: Strings = {
     download: "PNG letöltése",
     genError:
       "A képet nem sikerült létrehozni. Ellenőrizze a termékfotókat, és próbálja újra.",
+    aiGenerate: "Fotó generálása MI-vel",
+    aiUse: "Használja ezt a fotót",
+    aiError: "Nem sikerült MI-vel generálni. Próbálja újra.",
     previewTitle: "Közzétehető előnézet",
     previewAlt: "Kampány-előnézet: {trend} ({product}) ehhez: {network}",
     emptyTitle: "Még nincs kép",

@@ -1,6 +1,7 @@
 import { buildAllCatalogPayloads, isCatalogSendEnabled } from "@/lib/whatsapp-catalog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { VoiceNoteBox } from "@/components/voice-note-box";
 
 export const metadata = {
   title: "Catálogo WhatsApp (preview) — Casa de Brasas",
@@ -24,6 +25,8 @@ export default function WhatsappPage() {
         <code className="text-sm">WHATSAPP_CATALOG_SEND_ENABLED=true</code> (ver notas de setup en{" "}
         <code className="text-sm">lib/whatsapp-catalog.ts</code>); en este modo solo se previsualizan.
       </p>
+
+      <VoiceNoteBox />
 
       <div className="grid gap-4 mt-8">
         {payloads.map((p) => (
