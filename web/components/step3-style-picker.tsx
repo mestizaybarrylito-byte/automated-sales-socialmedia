@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useBrand } from "@/components/brand-theme-provider";
 import { Button } from "@/components/ui/button";
 import { StyleDrawer, type DrawerThumb } from "@/components/owner/style-drawer";
+import { StyleThumbImage } from "@/components/owner/style-thumb-card";
 import { loadArtImage, renderArtCanvas } from "@/lib/campaign-art";
 import { PHOTO_STYLES } from "@/lib/photo-styles";
 import { MAX_STEP3_STYLES } from "@/lib/brand";
@@ -211,7 +212,7 @@ export function Step3StylePicker() {
           <div
             role="group"
             aria-label="Estilos del paso 3"
-            className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+            className="flex gap-3 overflow-x-auto pb-2 snap-x"
           >
             {strip.map((thumb, i) => {
               const style = PHOTO_STYLES.find((s) => s.id === thumb.id);
@@ -224,15 +225,12 @@ export function Step3StylePicker() {
                   title={`Quitar ${name}`}
                   onClick={() => toggle(thumb.id)}
                   className={cn(
-                    "rounded-md border bg-white overflow-hidden text-left transition-colors",
+                    "w-44 sm:w-48 shrink-0 snap-start rounded-xl border overflow-hidden text-left transition-colors",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust-600",
                     "border-rust-700 ring-2 ring-rust-700/30"
                   )}
                 >
-                  <img src={thumb.url} alt={name} className="w-full block" loading="lazy" />
-                  <span className="block px-2 py-1.5 font-sans text-xs text-center font-semibold text-rust-700">
-                    {i + 1} · {name}
-                  </span>
+                  <StyleThumbImage url={thumb.url} name={`${i + 1} · ${name}`} />
                 </button>
               );
             })}

@@ -16,6 +16,7 @@ import { recordArtVideo, supportsVideoExport, videoDims } from "@/lib/campaign-v
 import { useBrand } from "@/components/brand-theme-provider";
 import { applyBrandName } from "@/lib/brand";
 import { StyleDrawer } from "@/components/owner/style-drawer";
+import { StyleThumbImage } from "@/components/owner/style-thumb-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -592,7 +593,7 @@ export function CampaignWizard({
                 <div
                   role="radiogroup"
                   aria-label={t.styleTitle}
-                  className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"
+                  className="flex gap-3 overflow-x-auto pb-2 snap-x"
                 >
                   {thumbs.map((thumb) => {
                     const style = getPhotoStyleFrom(styles, thumb.id);
@@ -606,27 +607,14 @@ export function CampaignWizard({
                         title={style.name}
                         onClick={() => selectStyle(thumb.id)}
                         className={cn(
-                          "rounded-md border bg-white overflow-hidden text-left transition-colors",
+                          "w-44 sm:w-48 shrink-0 snap-start rounded-xl border overflow-hidden text-left transition-colors",
                           "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust-600",
                           selected
-                            ? "border-rust-700 ring-2 ring-rust-700/30"
+                            ? "border-rust-700 ring-2 ring-rust-700/40"
                             : "border-charcoal-900/15 hover:border-rust-600/50"
                         )}
                       >
-                        <img
-                          src={thumb.url}
-                          alt={style.name}
-                          className="w-full block"
-                          loading="lazy"
-                        />
-                        <span
-                          className={cn(
-                            "block px-2 py-1.5 font-sans text-xs text-center",
-                            selected ? "font-semibold text-rust-700" : "text-charcoal-800/70"
-                          )}
-                        >
-                          {style.name}
-                        </span>
+                        <StyleThumbImage url={thumb.url} name={style.name} />
                       </button>
                     );
                   })}

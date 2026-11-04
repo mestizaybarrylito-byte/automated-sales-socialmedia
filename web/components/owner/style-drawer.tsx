@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CATEGORY_NAMES, STYLE_CATEGORIES, type PhotoStyle } from "@/lib/photo-styles";
 import { Button } from "@/components/ui/button";
+import { StyleThumbImage, StyleThumbSkeleton } from "@/components/owner/style-thumb-card";
 import { cn } from "@/lib/utils";
 
 export interface DrawerThumb {
@@ -71,17 +72,12 @@ export function StyleDrawer({
     multi && maxSelections !== undefined && (selectedIds as string[]).length >= maxSelections;
   const cellClass = (selected: boolean) =>
     cn(
-      "rounded-md border bg-white overflow-hidden text-left transition-colors",
+      "rounded-xl border overflow-hidden text-left transition-colors",
       "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rust-600",
       "disabled:cursor-not-allowed disabled:opacity-40",
       selected
         ? "border-rust-700 ring-2 ring-rust-700/30"
         : "border-charcoal-900/15 hover:border-rust-600/50"
-    );
-  const labelClass = (selected: boolean) =>
-    cn(
-      "block px-2 py-1.5 font-sans text-xs text-center",
-      selected ? "font-semibold text-rust-700" : "text-charcoal-800/70"
     );
 
   return (
@@ -131,12 +127,9 @@ export function StyleDrawer({
                             <div
                               key={style.id}
                               aria-hidden="true"
-                              className="rounded-md border border-charcoal-900/15 bg-white overflow-hidden"
+                              className="rounded-xl border border-charcoal-900/15 bg-white overflow-hidden"
                             >
-                              <div className="h-28 animate-pulse bg-charcoal-900/10" />
-                              <span className="block px-2 py-1.5 font-sans text-xs text-center text-charcoal-800/50">
-                                {style.name}
-                              </span>
+                              <StyleThumbSkeleton name={style.name} />
                             </div>
                           );
                         }
@@ -151,11 +144,10 @@ export function StyleDrawer({
                             onClick={() => onSelect(style.id)}
                             className={cellClass(selected)}
                           >
-                            <img src={url} alt={style.name} className="w-full block" loading="lazy" />
-                            <span className={labelClass(selected)}>
-                              {multi && selected ? `${order + 1} · ` : ""}
-                              {style.name}
-                            </span>
+                            <StyleThumbImage
+                              url={url}
+                              name={`${multi && selected ? `${order + 1} · ` : ""}${style.name}`}
+                            />
                           </button>
                         );
                       })}
